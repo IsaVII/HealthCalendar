@@ -137,6 +137,7 @@
       "stretching": "Stretching / mobility",
       "postExercise": "Feeling afterwards",
       "painLevel": "Pain level (0–10)",
+      "headacheKind": "Headache / migraine",
       "headacheStart": "Headache start",
       "headacheEnd": "Headache end",
       "headacheIntensity": "Headache intensity (1–10)",
@@ -203,6 +204,14 @@
       },
       "scale5": { "1": "1 — very low", "2": "2", "3": "3", "4": "4", "5": "5 — very high" },
       "reliefWorked": { "yes": "Yes", "partly": "Partly", "no": "No" },
+      "headacheKind": {
+        "migraine": "Migraine",
+        "tension": "Tension headache",
+        "cluster": "Cluster headache",
+        "sinus": "Sinus headache",
+        "cervicogenic": "Neck-related (cervicogenic)",
+        "other": "Other"
+      },
       "headacheLocation": {
         "frontal": "Frontal",
         "temporal": "Temporal",

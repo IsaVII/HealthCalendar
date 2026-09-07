@@ -29,6 +29,7 @@ export const OPTIONS = {
   sleepQuality: ['poor', 'fair', 'good', 'excellent'],
   scale5: ['1', '2', '3', '4', '5'],
   reliefWorked: ['yes', 'partly', 'no'],
+  headacheKind: ['migraine', 'tension', 'cluster', 'sinus', 'cervicogenic', 'other'],
   headacheLocation: ['frontal', 'temporal', 'occipital', 'one_sided', 'behind_eye'],
   headacheType: ['throbbing', 'pressure', 'stabbing', 'dull'],
   headacheAssociated: ['nausea', 'aura', 'light_sensitivity', 'sound_sensitivity', 'tearing'],
@@ -126,6 +127,7 @@ export const CATEGORIES = [
     icon: '🤕',
     fields: [
       { key: 'painLevel', type: 'select', optionsKey: 'pain' },
+      { key: 'headacheKind', type: 'multi', optionsKey: 'headacheKind' },
       { key: 'headacheStart', type: 'time' },
       { key: 'headacheEnd', type: 'time' },
       { key: 'headacheIntensity', type: 'number', min: 1, max: 10, step: 1 },

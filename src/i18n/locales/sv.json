@@ -137,6 +137,7 @@
       "stretching": "Stretching / rörlighet",
       "postExercise": "Känsla efteråt",
       "painLevel": "Smärtnivå (0–10)",
+      "headacheKind": "Huvudvärk / migrän",
       "headacheStart": "Huvudvärk började",
       "headacheEnd": "Huvudvärk slutade",
       "headacheIntensity": "Huvudvärkens intensitet (1–10)",
@@ -203,6 +204,14 @@
       },
       "scale5": { "1": "1 — mycket låg", "2": "2", "3": "3", "4": "4", "5": "5 — mycket hög" },
       "reliefWorked": { "yes": "Ja", "partly": "Delvis", "no": "Nej" },
+      "headacheKind": {
+        "migraine": "Migrän",
+        "tension": "Spänningshuvudvärk",
+        "cluster": "Hortons huvudvärk",
+        "sinus": "Bihålehuvudvärk",
+        "cervicogenic": "Nackrelaterad (cervikogen)",
+        "other": "Annat"
+      },
       "headacheLocation": {
         "frontal": "Panna",
         "temporal": "Tinning",
