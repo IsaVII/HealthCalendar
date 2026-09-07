@@ -59,6 +59,18 @@ export const CATEGORIES = [
   {
     id: 'meals',
     icon: '🍽️',
+    // Explicit row layout so each meal sits on its own line instead of the
+    // fields flowing into a mixed grid.
+    rows: [
+      ['breakfastTime', 'breakfast'],
+      ['lunchTime', 'lunch'],
+      ['dinnerTime', 'dinner'],
+      ['snacks'],
+      ['portion', 'lastFoodTime', 'skippedMeal'],
+      ['waterGlasses', 'caffeineCups', 'caffeineLastTime'],
+      ['alcoholUnits', 'sugar'],
+      ['supplements'],
+    ],
     fields: [
       { key: 'breakfastTime', type: 'time' },
       { key: 'breakfast', type: 'text' },

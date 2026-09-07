@@ -3,6 +3,24 @@ import { useTranslation } from 'react-i18next';
 import { categoryStatus } from '@/features/health/healthSchema';
 import { FieldRenderer } from './FieldRenderer';
 
+/** Per-field width inside an explicit `category.rows` layout. */
+function itemClass(field) {
+  switch (field.type) {
+    case 'time':
+      return 'w-28 shrink-0';
+    case 'number':
+      return 'w-24 shrink-0';
+    case 'select':
+      return 'min-w-[8rem] flex-1';
+    case 'toggle':
+      return 'shrink-0';
+    case 'text':
+      return 'min-w-[10rem] flex-1';
+    default:
+      return 'w-full';
+  }
+}
+
 /**
  * One collapsible category on the daily entry. Presentational: `open` and
  * `onToggle` are owned by the page so "expand / collapse all" and the
@@ -12,6 +30,17 @@ export function CategoryCard({ category, data, open, onToggle, onChangeField }) 
   const { t } = useTranslation();
   const { filled, count } = categoryStatus(data, category);
   const bucket = data?.[category.id] ?? {};
+  const fieldByKey = Object.fromEntries(category.fields.map((f) => [f.key, f]));
+
+  const renderField = (field) => (
+    <FieldRenderer
+      key={field.key}
+      field={field}
+      data={data}
+      value={bucket[field.key]}
+      onChange={(next) => onChangeField(category.id, field.key, next)}
+    />
+  );
 
   return (
     <details
@@ -36,17 +65,23 @@ export function CategoryCard({ category, data, open, onToggle, onChangeField }) 
         <span className="text-content-subtle transition group-open:rotate-180">▾</span>
       </summary>
 
-      <div className="grid gap-2 border-t border-border px-3 py-3 sm:grid-cols-2 lg:grid-cols-3">
-        {category.fields.map((field) => (
-          <FieldRenderer
-            key={field.key}
-            field={field}
-            data={data}
-            value={bucket[field.key]}
-            onChange={(next) => onChangeField(category.id, field.key, next)}
-          />
-        ))}
-      </div>
+      {category.rows ? (
+        <div className="space-y-2 border-t border-border px-3 py-3">
+          {category.rows.map((row, i) => (
+            <div key={i} className="flex flex-wrap items-end gap-2">
+              {row.map((key) => (
+                <div key={key} className={itemClass(fieldByKey[key])}>
+                  {renderField(fieldByKey[key])}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid gap-2 border-t border-border px-3 py-3 sm:grid-cols-2 lg:grid-cols-3">
+          {category.fields.map(renderField)}
+        </div>
+      )}
     </details>
   );
 }
