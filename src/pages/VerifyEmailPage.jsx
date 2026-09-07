@@ -35,7 +35,7 @@ export function VerifyEmailPage() {
       }
     >
       <div className="space-y-4">
-        <p className="text-sm text-slate-600">{t('auth.verifyEmail.body', { email })}</p>
+        <p className="text-sm text-content-muted">{t('auth.verifyEmail.body', { email })}</p>
         {resent && <Alert tone="success">{t('auth.verifyEmail.resent')}</Alert>}
         <Button variant="secondary" loading={pending} disabled={!email} onClick={handleResend}>
           {t('auth.verifyEmail.resend')}

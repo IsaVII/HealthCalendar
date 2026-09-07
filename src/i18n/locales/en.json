@@ -8,7 +8,8 @@
     "email": "Email",
     "username": "Username",
     "password": "Password",
-    "language": "Language"
+    "language": "Language",
+    "toggleTheme": "Toggle light / dark theme"
   },
   "nav": {
     "dashboard": "Dashboard",

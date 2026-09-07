@@ -2,12 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Design tokens. Every colour in the app resolves to one of these variables,
+ * so light/dark is a single switch on <html class="dark">.
+ *
+ * Values are space-separated RGB channels (not hex) so Tailwind's /opacity
+ * modifiers keep working — tailwind.config.js wraps each token in
+ * `rgb(var(--token) / <alpha-value>)`.
+ */
 @layer base {
+  :root {
+    --color-canvas: 248 250 252; /* page background */
+    --color-surface: 255 255 255; /* cards, header, inputs */
+    --color-surface-muted: 241 245 249; /* subtle fills, hover states */
+    --color-border: 226 232 240;
+
+    --color-content: 15 23 42; /* primary text */
+    --color-content-muted: 71 85 105; /* secondary text, icons */
+    --color-content-subtle: 148 163 184; /* faint text, disabled */
+
+    --color-brand-50: 240 253 250;
+    --color-brand-100: 204 251 241;
+    --color-brand-500: 20 184 166;
+    --color-brand-600: 13 148 136;
+    --color-brand-700: 15 118 110;
+  }
+
+  .dark {
+    --color-canvas: 2 6 23;
+    --color-surface: 15 23 42;
+    --color-surface-muted: 30 41 59;
+    --color-border: 30 41 59;
+
+    --color-content: 241 245 249;
+    --color-content-muted: 148 163 184;
+    --color-content-subtle: 100 116 139;
+
+    /* Brand shifts lighter so `text-brand-700` / `hover:bg-brand-50` stay
+       legible on dark surfaces. */
+    --color-brand-50: 19 78 74;
+    --color-brand-100: 17 94 89;
+    --color-brand-500: 45 212 191;
+    --color-brand-600: 20 184 166;
+    --color-brand-700: 94 234 212;
+  }
+
   html {
     -webkit-text-size-adjust: 100%;
   }
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
+    @apply bg-canvas text-content antialiased;
   }
   /* Respect iOS safe areas for the mobile layout. */
   .safe-px {

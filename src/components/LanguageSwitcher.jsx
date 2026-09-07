@@ -6,12 +6,12 @@ export function LanguageSwitcher({ className = '' }) {
   const { i18n, t } = useTranslation();
 
   return (
-    <label className={`inline-flex items-center gap-2 text-sm text-slate-600 ${className}`}>
+    <label className={`inline-flex items-center gap-2 text-sm text-content-muted ${className}`}>
       <span className="sr-only">{t('common.language')}</span>
       <select
         value={i18n.resolvedLanguage}
         onChange={(e) => i18n.changeLanguage(e.target.value)}
-        className="min-h-9 rounded-md border border-slate-300 bg-white px-2 py-1 text-sm"
+        className="min-h-9 rounded-md border border-border bg-surface px-2 py-1 text-sm text-content"
       >
         {SUPPORTED_LANGUAGES.map((lng) => (
           <option key={lng.code} value={lng.code}>

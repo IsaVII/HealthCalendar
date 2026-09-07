@@ -85,7 +85,7 @@ export function HealthEntryPage() {
   return (
     <section className="space-y-4">
       <div className="flex items-baseline justify-between gap-3">
-        <h1 className="text-2xl font-bold text-slate-900">{t('health.title')}</h1>
+        <h1 className="text-2xl font-bold text-content">{t('health.title')}</h1>
         {loading && <Spinner className="h-4 w-4 text-brand-600" />}
       </div>
 

@@ -28,7 +28,7 @@ export function MonthGrid({ cursor, entriesByDate, onSelectDay, compact = false 
                   ? 'bg-transparent'
                   : entry
                     ? painColor(entry.pain_level)
-                    : 'bg-slate-100'
+                    : 'bg-surface-muted'
               } ${iso === today ? 'ring-1 ring-brand-600' : ''}`}
             />
           );
@@ -39,7 +39,7 @@ export function MonthGrid({ cursor, entriesByDate, onSelectDay, compact = false 
 
   return (
     <div>
-      <div className="grid grid-cols-7 gap-1 pb-1 text-center text-xs font-medium uppercase text-slate-400">
+      <div className="grid grid-cols-7 gap-1 pb-1 text-center text-xs font-medium uppercase text-content-subtle">
         {weekdayLabels(locale).map((label, i) => (
           <div key={i}>{label}</div>
         ))}
@@ -55,12 +55,12 @@ export function MonthGrid({ cursor, entriesByDate, onSelectDay, compact = false 
               onClick={() => onSelectDay(iso)}
               className={`flex aspect-square flex-col items-center justify-start rounded-lg border p-1 text-sm transition ${
                 inMonth
-                  ? 'border-slate-200 bg-white hover:border-brand-400 hover:bg-brand-50'
-                  : 'border-transparent bg-slate-50 text-slate-300'
+                  ? 'border-border bg-surface hover:border-brand-500 hover:bg-brand-50'
+                  : 'border-transparent bg-surface-muted text-content-subtle'
               } ${isToday ? 'ring-2 ring-brand-500' : ''}`}
               aria-current={isToday ? 'date' : undefined}
             >
-              <span className={inMonth ? 'text-slate-600' : ''}>
+              <span className={inMonth ? 'text-content-muted' : ''}>
                 {Number(iso.slice(8, 10))}
               </span>
               {entry && (

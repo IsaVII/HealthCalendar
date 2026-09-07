@@ -18,9 +18,9 @@ export function YearGrid({ cursor, entriesByDate, onOpenMonth }) {
           key={monthIso}
           type="button"
           onClick={() => onOpenMonth(monthIso)}
-          className="rounded-xl border border-slate-200 bg-white p-3 text-left transition hover:border-brand-400 hover:bg-brand-50"
+          className="rounded-xl border border-border bg-surface p-3 text-left transition hover:border-brand-500 hover:bg-brand-50"
         >
-          <div className="mb-2 text-sm font-semibold capitalize text-slate-700">
+          <div className="mb-2 text-sm font-semibold capitalize text-content-muted">
             {monthLabel(locale, monthIso, { month: 'long' })}
           </div>
           <MonthGrid cursor={monthIso} entriesByDate={entriesByDate} compact />

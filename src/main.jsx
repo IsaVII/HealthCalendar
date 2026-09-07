@@ -6,14 +6,17 @@ import './styles/index.css';
 import './i18n';
 import { store } from '@/app/store';
 import { AuthProvider } from '@/features/auth/AuthProvider';
+import { ThemeProvider } from '@/features/theme/ThemeProvider';
 import App from './App';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </ThemeProvider>
     </Provider>
   </StrictMode>,
 );

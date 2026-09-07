@@ -35,12 +35,12 @@ export function DashboardPage() {
 
   return (
     <section className="space-y-4">
-      <h1 className="text-2xl font-bold text-slate-900">{t('dashboard.title')}</h1>
-      <p className="text-slate-700">{t('dashboard.welcome', { name })}</p>
+      <h1 className="text-2xl font-bold text-content">{t('dashboard.title')}</h1>
+      <p className="text-content-muted">{t('dashboard.welcome', { name })}</p>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-4 sm:p-6">
+      <div className="rounded-xl border border-border bg-surface p-4 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-2 pb-3">
-          <h2 className="text-lg font-semibold capitalize text-slate-800">
+          <h2 className="text-lg font-semibold capitalize text-content">
             {monthLabel(locale, today, { month: 'long', year: 'numeric' })}
           </h2>
           <div className="flex items-center gap-2">

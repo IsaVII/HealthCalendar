@@ -10,7 +10,7 @@ export function FormField({ label, hint, error, type = 'text', className = '', .
 
   return (
     <div className={className}>
-      <label htmlFor={id} className="mb-1 block text-sm font-medium text-slate-700">
+      <label htmlFor={id} className="mb-1 block text-sm font-medium text-content">
         {label}
       </label>
       <input
@@ -18,10 +18,10 @@ export function FormField({ label, hint, error, type = 'text', className = '', .
         type={type}
         aria-invalid={Boolean(error)}
         aria-describedby={describedBy}
-        className={`block min-h-11 w-full rounded-lg border px-3 text-base shadow-sm outline-none transition focus:ring-2 ${
+        className={`block min-h-11 w-full rounded-lg border bg-surface px-3 text-base text-content shadow-sm outline-none transition focus:ring-2 ${
           error
             ? 'border-red-400 focus:border-red-500 focus:ring-red-200'
-            : 'border-slate-300 focus:border-brand-500 focus:ring-brand-200'
+            : 'border-border focus:border-brand-500 focus:ring-brand-500/30'
         }`}
         {...inputProps}
       />
@@ -30,7 +30,7 @@ export function FormField({ label, hint, error, type = 'text', className = '', .
           {error}
         </p>
       ) : hint ? (
-        <p id={`${id}-hint`} className="mt-1 text-sm text-slate-500">
+        <p id={`${id}-hint`} className="mt-1 text-sm text-content-muted">
           {hint}
         </p>
       ) : null}

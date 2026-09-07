@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { logoutUser } from '@/features/auth/authSlice';
 import { selectDisplayName } from '@/features/auth/authSelectors';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { ThemeToggle } from '@/features/theme/ThemeToggle';
 import { Button } from '@/components/ui/Button';
 
 /** Shell for authenticated pages: top bar + a bottom tab bar on mobile. */
@@ -21,7 +22,7 @@ export function AppLayout() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="border-b border-slate-200 bg-white safe-px">
+      <header className="border-b border-border bg-surface safe-px">
         <div className="mx-auto flex w-full max-w-3xl items-center justify-between py-3">
           <div className="flex items-center gap-6">
             <span className="font-bold text-brand-700">{t('common.appName')}</span>
@@ -31,7 +32,7 @@ export function AppLayout() {
                   key={item.to}
                   to={item.to}
                   className={({ isActive }) =>
-                    `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-slate-500 hover:text-slate-700'}`
+                    `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-content-muted hover:text-content'}`
                   }
                 >
                   {item.label}
@@ -40,8 +41,9 @@ export function AppLayout() {
             </nav>
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <LanguageSwitcher />
-            <span className="hidden text-sm text-slate-500 sm:inline">{name}</span>
+            <span className="hidden text-sm text-content-muted sm:inline">{name}</span>
             <Button
               variant="ghost"
               className="w-auto px-2"
@@ -57,7 +59,7 @@ export function AppLayout() {
         <Outlet />
       </main>
 
-      <nav className="sticky bottom-0 border-t border-slate-200 bg-white sm:hidden">
+      <nav className="sticky bottom-0 border-t border-border bg-surface sm:hidden">
         <ul className="mx-auto flex max-w-3xl">
           {navItems.map((item) => (
             <li key={item.to} className="flex-1">
@@ -65,7 +67,7 @@ export function AppLayout() {
                 to={item.to}
                 className={({ isActive }) =>
                   `flex min-h-12 items-center justify-center text-sm font-medium ${
-                    isActive ? 'text-brand-700' : 'text-slate-500'
+                    isActive ? 'text-brand-700' : 'text-content-muted'
                   }`
                 }
               >

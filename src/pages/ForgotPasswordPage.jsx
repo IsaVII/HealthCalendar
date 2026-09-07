@@ -37,7 +37,7 @@ export function ForgotPasswordPage() {
         <Alert tone="success">{t('auth.forgotPassword.sent')}</Alert>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          <p className="text-sm text-slate-600">{t('auth.forgotPassword.body')}</p>
+          <p className="text-sm text-content-muted">{t('auth.forgotPassword.body')}</p>
           <FormField
             label={t('common.email')}
             type="email"

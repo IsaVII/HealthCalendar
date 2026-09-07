@@ -9,6 +9,16 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230f766e'/%3E%3Cpath d='M8 3v10M3 8h10' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"
     />
     <title>HealthCalendar</title>
+    <script>
+      // Set the theme before first paint to avoid a flash of the wrong colours.
+      try {
+        var t = localStorage.getItem('hc.theme');
+        if (t !== 'light' && t !== 'dark') {
+          t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        if (t === 'dark') document.documentElement.classList.add('dark');
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

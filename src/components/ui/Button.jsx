@@ -2,7 +2,7 @@ import { Spinner } from './Spinner';
 
 const VARIANTS = {
   primary: 'bg-brand-600 text-white hover:bg-brand-700 disabled:bg-brand-600/60',
-  secondary: 'bg-white text-slate-800 ring-1 ring-inset ring-slate-300 hover:bg-slate-50',
+  secondary: 'bg-surface text-content ring-1 ring-inset ring-border hover:bg-surface-muted',
   ghost: 'text-brand-700 hover:bg-brand-50',
 };
 

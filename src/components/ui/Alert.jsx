@@ -1,7 +1,9 @@
 const TONES = {
-  error: 'bg-red-50 text-red-800 ring-red-200',
-  success: 'bg-emerald-50 text-emerald-800 ring-emerald-200',
-  info: 'bg-sky-50 text-sky-800 ring-sky-200',
+  error:
+    'bg-red-50 text-red-800 ring-red-200 dark:bg-red-950/50 dark:text-red-200 dark:ring-red-900',
+  success:
+    'bg-emerald-50 text-emerald-800 ring-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-200 dark:ring-emerald-900',
+  info: 'bg-sky-50 text-sky-800 ring-sky-200 dark:bg-sky-950/50 dark:text-sky-200 dark:ring-sky-900',
 };
 
 export function Alert({ tone = 'info', children }) {

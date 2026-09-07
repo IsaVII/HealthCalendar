@@ -64,15 +64,17 @@ export function CalendarPage() {
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-slate-900">{t('calendar.title')}</h1>
-        <div className="inline-flex overflow-hidden rounded-lg border border-slate-300">
+        <h1 className="text-2xl font-bold text-content">{t('calendar.title')}</h1>
+        <div className="inline-flex overflow-hidden rounded-lg border border-border">
           {['month', 'year'].map((v) => (
             <button
               key={v}
               type="button"
               onClick={() => dispatch(setCalendarView(v))}
               className={`px-3 py-1.5 text-sm font-medium transition ${
-                view === v ? 'bg-brand-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'
+                view === v
+                  ? 'bg-brand-600 text-white'
+                  : 'bg-surface text-content-muted hover:bg-surface-muted'
               }`}
             >
               {t(`calendar.${v}`)}
@@ -87,7 +89,7 @@ export function CalendarPage() {
             type="button"
             onClick={() => step(-1)}
             aria-label={t('calendar.prevPeriod')}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface text-content-muted hover:bg-surface-muted"
           >
             ‹
           </button>
@@ -95,11 +97,11 @@ export function CalendarPage() {
             type="button"
             onClick={() => step(1)}
             aria-label={t('calendar.nextPeriod')}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface text-content-muted hover:bg-surface-muted"
           >
             ›
           </button>
-          <span className="ml-2 text-lg font-semibold capitalize text-slate-800">
+          <span className="ml-2 text-lg font-semibold capitalize text-content">
             {periodLabel}
           </span>
           {rangeStatus === 'loading' && <Spinner className="ml-1 h-4 w-4 text-brand-600" />}
@@ -107,7 +109,7 @@ export function CalendarPage() {
         <button
           type="button"
           onClick={() => dispatch(setCalendarCursor(todayIso()))}
-          className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
+          className="rounded-lg border border-border bg-surface px-3 py-1.5 text-sm font-medium text-content-muted hover:bg-surface-muted"
         >
           {t('calendar.today')}
         </button>
@@ -127,7 +129,7 @@ export function CalendarPage() {
         />
       )}
 
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 text-xs text-slate-500">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 text-xs text-content-muted">
         <span className="font-medium">{t('calendar.legendPain')}:</span>
         {PAIN_BUCKETS.map((bucket) => (
           <span key={bucket.label} className="flex items-center gap-1">
