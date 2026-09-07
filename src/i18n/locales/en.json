@@ -72,6 +72,7 @@
     "dateLabel": "Date",
     "painLevel": "Pain level",
     "painLevelHint": "0 = none, 10 = worst imaginable",
+    "painLevelNone": "Not recorded",
     "sleepHours": "Sleep hours",
     "sleepQuality": "Sleep quality",
     "sleepQualityOptions": {

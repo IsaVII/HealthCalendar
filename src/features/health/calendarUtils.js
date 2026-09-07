@@ -99,25 +99,29 @@ export function monthLabel(locale, iso, opts = { month: 'long', year: 'numeric' 
 }
 
 /**
- * A Tailwind background class for a pain level 0–10 (green → red), or a neutral
- * class when there is no pain value. Classes are spelled out so Tailwind's JIT
+ * Pain level is bucketed two levels to a colour, green → red:
+ * 0–1, 2–3, 4–5, 6–7, 8–9, 10. Classes are spelled out so Tailwind's JIT
  * keeps them.
  */
-const PAIN_SCALE = [
-  'bg-emerald-400',
-  'bg-emerald-400',
-  'bg-lime-400',
-  'bg-lime-400',
-  'bg-yellow-300',
-  'bg-yellow-400',
-  'bg-amber-400',
-  'bg-orange-400',
-  'bg-orange-500',
-  'bg-red-500',
-  'bg-red-600',
+export const PAIN_BUCKETS = [
+  { label: '0–1', className: 'bg-emerald-500' },
+  { label: '2–3', className: 'bg-lime-500' },
+  { label: '4–5', className: 'bg-yellow-400' },
+  { label: '6–7', className: 'bg-amber-500' },
+  { label: '8–9', className: 'bg-orange-600' },
+  { label: '10', className: 'bg-red-700' },
 ];
 
+/** The bucket index (0–5) a pain level falls in. */
+export function painBucket(level) {
+  return Math.floor(Math.max(0, Math.min(10, Math.round(level))) / 2);
+}
+
+/**
+ * A Tailwind background class for a pain level 0–10, or a neutral class when the
+ * day is logged without a pain value.
+ */
 export function painColor(level) {
   if (level === null || level === undefined) return 'bg-slate-400';
-  return PAIN_SCALE[Math.max(0, Math.min(10, Math.round(level)))];
+  return PAIN_BUCKETS[painBucket(level)].className;
 }

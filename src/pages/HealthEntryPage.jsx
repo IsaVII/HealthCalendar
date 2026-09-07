@@ -14,8 +14,7 @@ import {
 } from '@/features/health/healthSelectors';
 import {
   SLEEP_QUALITY_VALUES,
-  PAIN_LEVEL_MIN,
-  PAIN_LEVEL_MAX,
+  PAIN_LEVELS,
   SLEEP_HOURS_MIN,
   SLEEP_HOURS_MAX,
   todayIso,
@@ -104,19 +103,21 @@ export function HealthEntryPage() {
           onChange={(e) => changeDate(e.target.value)}
         />
 
-        <FormField
+        <SelectField
           label={t('health.painLevel')}
-          type="number"
           name="pain_level"
-          inputMode="numeric"
-          min={PAIN_LEVEL_MIN}
-          max={PAIN_LEVEL_MAX}
-          step={1}
           hint={t('health.painLevelHint')}
           disabled={loading}
           value={form.painLevel}
           onChange={update('painLevel')}
-        />
+        >
+          <option value="">{t('health.painLevelNone')}</option>
+          {PAIN_LEVELS.map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
+        </SelectField>
 
         <FormField
           label={t('health.sleepHours')}

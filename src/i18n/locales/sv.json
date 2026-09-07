@@ -72,6 +72,7 @@
     "dateLabel": "Datum",
     "painLevel": "Smärtnivå",
     "painLevelHint": "0 = ingen, 10 = värsta tänkbara",
+    "painLevelNone": "Ej angiven",
     "sleepHours": "Sömntimmar",
     "sleepQuality": "Sömnkvalitet",
     "sleepQualityOptions": {

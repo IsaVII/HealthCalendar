@@ -1,9 +1,10 @@
 import { supabase } from '@/lib/supabaseClient';
 
 /**
- * Reads and writes `public.health_entries`. RLS restricts every row to its
- * owner, so these queries never need an explicit `user_id` filter on reads.
- * Knows nothing about React or Redux.
+ * Reads and writes `public.health_entries`. RLS already restricts every row to
+ * its owner; the queries below *also* filter on `user_id` explicitly, so a
+ * `.maybeSingle()` can never trip over another user's row if RLS is ever
+ * misconfigured. Knows nothing about React or Redux.
  *
  * Exposed as a singleton (`healthService`); the class stays testable with a
  * mock client.
@@ -15,14 +16,24 @@ export class HealthService {
     this.client = client;
   }
 
+  /** The signed-in user's id. Throws when there is no session. */
+  async requireUserId() {
+    const { data } = await this.client.auth.getSession();
+    const userId = data.session?.user?.id;
+    if (!userId) throw new Error('Not authenticated');
+    return userId;
+  }
+
   /**
    * The current user's entry for a given `YYYY-MM-DD` date, or null when they
    * haven't logged that day yet.
    */
   async getEntryByDate(date) {
+    const userId = await this.requireUserId();
     const { data, error } = await this.client
       .from('health_entries')
       .select(COLUMNS)
+      .eq('user_id', userId)
       .eq('entry_date', date)
       .maybeSingle();
     if (error) throw error;
@@ -34,9 +45,11 @@ export class HealthService {
    * oldest first. Used by the calendar overview.
    */
   async listEntries(fromDate, toDate) {
+    const userId = await this.requireUserId();
     const { data, error } = await this.client
       .from('health_entries')
       .select('entry_date, pain_level, sleep_hours, sleep_quality')
+      .eq('user_id', userId)
       .gte('entry_date', fromDate)
       .lte('entry_date', toDate)
       .order('entry_date', { ascending: true });
@@ -53,9 +66,7 @@ export class HealthService {
    * @param {{ painLevel: number|null, sleepHours: number|null, sleepQuality: string|null }} values
    */
   async saveEntry(date, values) {
-    const { data: sessionData } = await this.client.auth.getSession();
-    const userId = sessionData?.session?.user?.id;
-    if (!userId) throw new Error('Not authenticated');
+    const userId = await this.requireUserId();
 
     const row = {
       user_id: userId,

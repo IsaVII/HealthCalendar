@@ -16,7 +16,9 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 
 export function AppRouter() {
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
       <Routes>
         <Route index element={<Navigate to="/dashboard" replace />} />
 

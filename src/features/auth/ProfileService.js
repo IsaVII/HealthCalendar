@@ -11,20 +11,34 @@ export class ProfileService {
     this.client = client;
   }
 
+  /** The signed-in user's id, or null. */
+  async currentUserId() {
+    const { data } = await this.client.auth.getSession();
+    return data.session?.user?.id ?? null;
+  }
+
   /** The current user's profile, or null if the trigger hasn't run yet. */
   async getMyProfile() {
+    const userId = await this.currentUserId();
+    if (!userId) return null;
+
     const { data, error } = await this.client
       .from('profiles')
       .select('id, username, display_name, locale, created_at')
+      .eq('id', userId)
       .maybeSingle();
     if (error) throw AuthError.from(error);
     return data ?? null;
   }
 
   async updateMyProfile(patch) {
+    const userId = await this.currentUserId();
+    if (!userId) throw new AuthError('generic', 'Not authenticated');
+
     const { data, error } = await this.client
       .from('profiles')
       .update({ ...patch, updated_at: new Date().toISOString() })
+      .eq('id', userId)
       .select('id, username, display_name, locale')
       .single();
     if (error) throw AuthError.from(error);

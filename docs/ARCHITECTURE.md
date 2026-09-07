@@ -337,8 +337,8 @@ a duplicate. Changing the date input reloads and updates the URL.
 `calendarCursor` (any day inside the visible period) live in the slice.
 `rangeForView` turns them into a `[from, to]`; `loadEntriesInRange` fetches that
 window into `entriesByDate` (a `date → row` map). Each day cell is coloured by
-`painColor(pain_level)` (green → red), or neutral when logged without a pain
-value. Month/weekday names come from `Intl.DateTimeFormat` keyed on the active
+`painColor(pain_level)` — six green→red buckets, two levels each (0–1 … 10) —
+or neutral when logged without a pain value. Month/weekday names come from `Intl.DateTimeFormat` keyed on the active
 i18n language, not the locale JSON. Clicking a day opens `/health?date=…`;
 clicking a month tile in year view drops into that month.
 

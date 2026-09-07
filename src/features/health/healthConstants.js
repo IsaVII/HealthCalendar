@@ -9,6 +9,12 @@ export const SLEEP_QUALITY_VALUES = ['poor', 'fair', 'good', 'excellent'];
 export const PAIN_LEVEL_MIN = 0;
 export const PAIN_LEVEL_MAX = 10;
 
+/** Selectable pain levels, [0, 1, …, 10]. */
+export const PAIN_LEVELS = Array.from(
+  { length: PAIN_LEVEL_MAX - PAIN_LEVEL_MIN + 1 },
+  (_, i) => PAIN_LEVEL_MIN + i,
+);
+
 export const SLEEP_HOURS_MIN = 0;
 export const SLEEP_HOURS_MAX = 24;
 
