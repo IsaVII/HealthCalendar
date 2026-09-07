@@ -30,6 +30,9 @@ import { Spinner } from '@/components/ui/Spinner';
 
 const EMPTY_FORM = { painLevel: '', sleepHours: '', sleepQuality: '' };
 
+// Only past/present days can be logged; anything else falls back to today.
+const isSelectableDate = (value) => isIsoDate(value) && value <= todayIso();
+
 export function HealthEntryPage() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -38,12 +41,12 @@ export function HealthEntryPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const paramDate = searchParams.get('date');
   const [date, setDate] = useState(() =>
-    paramDate && isIsoDate(paramDate) ? paramDate : todayIso(),
+    isSelectableDate(paramDate) ? paramDate : todayIso(),
   );
   const [form, setForm] = useState(EMPTY_FORM);
 
   function changeDate(next) {
-    const value = isIsoDate(next) ? next : todayIso();
+    const value = isSelectableDate(next) ? next : todayIso();
     setDate(value);
     setSearchParams(value === todayIso() ? {} : { date: value }, { replace: true });
   }
@@ -58,7 +61,7 @@ export function HealthEntryPage() {
   // Follow the ?date= param when the page is already mounted (e.g. a second
   // click from the calendar).
   useEffect(() => {
-    if (paramDate && isIsoDate(paramDate) && paramDate !== date) setDate(paramDate);
+    if (isSelectableDate(paramDate) && paramDate !== date) setDate(paramDate);
   }, [paramDate, date]);
 
   // Auto-load whenever the selected date changes (on mount it's today or ?date=).

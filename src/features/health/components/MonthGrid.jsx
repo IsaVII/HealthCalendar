@@ -48,15 +48,19 @@ export function MonthGrid({ cursor, entriesByDate, onSelectDay, compact = false 
         {weeks.flat().map(({ iso, inMonth }) => {
           const entry = entriesByDate[iso];
           const isToday = iso === today;
+          const isFuture = iso > today;
           return (
             <button
               key={iso}
               type="button"
               onClick={() => onSelectDay(iso)}
+              disabled={isFuture}
               className={`flex aspect-square flex-col items-center justify-start rounded-lg border p-1 text-sm transition ${
-                inMonth
-                  ? 'border-border bg-surface hover:border-brand-500 hover:bg-brand-50'
-                  : 'border-transparent bg-surface-muted text-content-subtle'
+                isFuture
+                  ? 'cursor-not-allowed border-transparent bg-surface-muted text-content-subtle opacity-50'
+                  : inMonth
+                    ? 'border-border bg-surface hover:border-brand-500 hover:bg-brand-50 dark:bg-surface-muted'
+                    : 'border-transparent bg-surface-muted text-content-subtle dark:bg-canvas'
               } ${isToday ? 'ring-2 ring-brand-500' : ''}`}
               aria-current={isToday ? 'date' : undefined}
             >
