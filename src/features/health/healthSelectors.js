@@ -1,5 +1,7 @@
 /** The only sanctioned way for the UI to read health state. */
 
+import { createSelector } from '@reduxjs/toolkit';
+
 export const selectHealthDate = (state) => state.health.date;
 export const selectHealthEntry = (state) => state.health.entry;
 export const selectHealthLoadStatus = (state) => state.health.loadStatus;
@@ -21,5 +23,7 @@ export const selectRangeError = (state) => state.health.rangeError;
 export const selectMedications = (state) => state.health.medications.items;
 export const selectMedicationsStatus = (state) => state.health.medications.status;
 export const selectMedicationsError = (state) => state.health.medications.error;
-export const selectActiveMedications = (state) =>
-  state.health.medications.items.filter((m) => m.is_active);
+export const selectActiveMedications = createSelector(
+  [selectMedications],
+  (items) => items.filter((m) => m.is_active),
+);

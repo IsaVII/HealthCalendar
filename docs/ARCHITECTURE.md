@@ -391,7 +391,8 @@ section 3.
 - [ ] Split i18n namespaces once strings grow.
 - [ ] Add e2e tests (Playwright) for the auth flows.
 - [ ] Decide native client (React Native) vs PWA install for "mobile".
-- [ ] CI: lint + build on PR.
+- [x] CI: lint + test + build on PR (`.github/workflows/ci.yml`); deploy to
+      GitHub Pages on push to master (`.github/workflows/deploy.yml`).
 - [ ] Error monitoring (Sentry) and analytics.
 - [ ] `profiles.locale` write-back on language change.
 - [ ] Pattern analysis over `data`: headache-trigger correlation, weight/BMI trends.
@@ -407,6 +408,8 @@ npm install
 # apply supabase/migrations/*.sql to your project, in order
 #   (Supabase SQL editor, or `supabase db push` with the CLI)
 npm run dev                   # http://localhost:5173
+npm test                      # Vitest (jsdom) — unit, slice, service, component
+npm run coverage              # + v8 coverage report in ./coverage
 ```
 
 Supabase dashboard checklist:
@@ -417,3 +420,29 @@ Supabase dashboard checklist:
    the project's `profiles` table pre-dates this app (it did on the first
    deployment — a leftover table without a `locale` column made every profile
    fetch 400).
+
+---
+
+## 11. Tests & deployment
+
+- **Vitest** — config lives in `vite.config.js` under `test`. jsdom environment,
+  `src/test/setup.js` (jest-dom matchers + a `matchMedia` stub),
+  `src/test/utils.jsx` (`renderWithProviders` = fresh store + i18n + memory
+  router, plus a chainable Supabase-client mock). `npm test`, `npm run coverage`.
+- Coverage: pure logic (`healthSchema`, `calendarUtils`, `healthConstants`,
+  `validation`, `AuthError`); the service classes with a mock client
+  (`AuthService`, `ProfileService`, `HealthService`, `MedicationService`); the
+  reducers (`authSlice`, `healthSlice`); component suites (`FieldRenderer`,
+  `CategoryCard`); a `SettingsPage` integration test (services mocked); and a
+  static check over `supabase/migrations/*.sql` (naming, RLS, idempotent
+  policies, expected columns).
+- **CI** — `.github/workflows/ci.yml`: lint → coverage → build on every push /
+  PR to `master`.
+- **Deploy** — `.github/workflows/deploy.yml` (push to `master`): builds with
+  `VITE_BASE=/<repo>/` for project Pages and publishes `dist`, plus a `404.html`
+  copy of `index.html` so SPA deep links / refreshes resolve. `AppRouter` uses
+  `basename={import.meta.env.BASE_URL}`, so the same source builds at `/`
+  locally. One-time setup: repo **Settings → Pages → Source: GitHub Actions**;
+  add repo **Variables** `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`; add
+  the resulting `https://<user>.github.io/<repo>/` URL to Supabase
+  Auth → URL Configuration.
