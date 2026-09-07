@@ -3,6 +3,8 @@
  * migration 0002 so the client and database agree.
  */
 
+import { mergeData, deriveLegacyColumns } from './healthSchema';
+
 /** Allowed `sleep_quality` values, in ascending order. */
 export const SLEEP_QUALITY_VALUES = ['poor', 'fair', 'good', 'excellent'];
 
@@ -35,23 +37,15 @@ export function isIsoDate(value) {
   );
 }
 
-/** DB row -> form state (all fields are strings the inputs can bind to). */
+/** DB row -> form state: `{ data }`, with every schema field present. */
 export function entryToForm(entry) {
-  return {
-    painLevel: entry?.pain_level ?? '',
-    sleepHours: entry?.sleep_hours ?? '',
-    sleepQuality: entry?.sleep_quality ?? '',
-    sleepNote: entry?.sleep_note ?? '',
-  };
+  return { data: mergeData(entry?.data) };
 }
 
-/** Form state -> the values a thunk/service expects (numbers or null). */
+/**
+ * Form state (`{ data }`) -> the values the service upserts: the flexible
+ * `data` document plus the four legacy columns the calendar reads.
+ */
 export function formToValues(form) {
-  const num = (v) => (v === '' || v === null || v === undefined ? null : Number(v));
-  return {
-    painLevel: num(form.painLevel),
-    sleepHours: num(form.sleepHours),
-    sleepQuality: form.sleepQuality || null,
-    sleepNote: form.sleepNote?.trim() ? form.sleepNote.trim() : null,
-  };
+  return { ...deriveLegacyColumns(form.data), data: form.data };
 }

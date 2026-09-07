@@ -82,7 +82,9 @@ HealthCalendar/
 │       ├── 0001_auth_profiles.sql  ← profiles table, trigger, RLS, RPCs
 │       ├── 0002_health_entries.sql ← daily health_entries table + RLS
 │       ├── 0003_profiles_locale.sql ← adds profiles.locale if the table pre-existed
-│       └── 0004_health_entries_sleep_note.sql ← adds free-text health_entries.sleep_note
+│       ├── 0004_health_entries_sleep_note.sql ← adds free-text health_entries.sleep_note
+│       ├── 0005_health_entries_data.sql ← adds health_entries.data jsonb (all non-legacy fields)
+│       └── 0006_user_medications.sql ← user_medications table + RLS; profiles.default_height_cm
 ├── index.html
 ├── vite.config.js
 ├── tailwind.config.js
@@ -247,7 +249,7 @@ state.auth = {
   status: 'idle' | 'loading' | 'authenticated' | 'unauthenticated',
   session: null | { access_token, user, ... },
   user:    null | { id, email, email_confirmed_at, ... },
-  profile: null | { username, display_name, locale },
+  profile: null | { username, display_name, locale, default_height_cm },
   error:   null | { code, message },
 }
 
@@ -259,6 +261,8 @@ state.health = {
   calendarCursor: 'YYYY-MM-DD',
   entriesByDate: { 'YYYY-MM-DD': { pain_level, sleep_hours, sleep_quality } },
   rangeStatus, rangeError,
+  // regular medications (managed on /settings)
+  medications: { items: [], status, error },
 }
 ```
 
@@ -293,25 +297,33 @@ its reducer in `src/app/store.js`.
 
 ## 8. Health data (built)
 
-Two pages so far: `/health` records one entry per day; `/calendar` shows those
-entries across a month or a year.
+Three pages: `/health` records one entry per day (11 collapsible categories);
+`/calendar` shows those entries across a month or a year; `/settings` manages the
+user's regular-medication list.
 
 ```
 src/features/health/
-  HealthService.js      ← getEntryByDate(date) / listEntries(from,to) / saveEntry(date,values)
-  healthThunks.js       ← loadEntryForDate, loadEntriesInRange, saveEntryForDate
-  healthSlice.js        ← entry-form state + calendar state (view/cursor/entriesByDate)
-  healthSelectors.js    ← the only way pages read health state
-  healthConstants.js    ← SLEEP_QUALITY_VALUES, ranges, todayIso(), isIsoDate(), mappers
-  calendarUtils.js      ← parseIso/toIso, addMonths/addYears, monthMatrix, rangeForView,
-                          Intl weekday/month labels, painColor(level)
-  components/MonthGrid.jsx  ← one month as a 7-col grid (full or compact)
-  components/YearGrid.jsx   ← 12 compact MonthGrids; click a tile → month view
+  HealthService.js       ← getEntryByDate(date) / listEntries(from,to) / saveEntry(date,values)
+  MedicationService.js   ← list/create/update/delete user_medications
+  healthThunks.js        ← loadEntryForDate, loadEntriesInRange, saveEntryForDate
+  medicationThunks.js    ← loadMedications, add/update/removeMedication
+  healthSlice.js         ← entry-form state + calendar state + medications sub-state
+  healthSelectors.js     ← the only way pages read health state
+  healthConstants.js     ← todayIso(), isIsoDate(), entryToForm/formToValues mappers
+  healthSchema.js        ← CATEGORIES config (the source of truth for the entry form),
+                           OPTIONS, defaultData, categoryStatus, computeBmi, mergeData,
+                           deriveLegacyColumns
+  calendarUtils.js       ← date math, Intl labels, painColor(level)
+  components/CategoryCard.jsx  ← one <details> category card; status dot + field count;
+                                 open state persisted in localStorage (health.cat.<id>)
+  components/FieldRenderer.jsx ← renders one field by type (number/text/time/select/
+                                 textarea/toggle/multi/meds/bmi)
+  components/MonthGrid.jsx / YearGrid.jsx  ← calendar grids
 
-src/pages/HealthEntryPage.jsx        ← the form; reads/writes ?date=YYYY-MM-DD
-src/pages/CalendarPage.jsx           ← header (view toggle, prev/next, today) + grid
-src/components/ui/SelectField.jsx    ← <select> sibling of FormField
-supabase/migrations/0002_health_entries.sql
+src/pages/HealthEntryPage.jsx  ← categories, expand/collapse all, sticky Save; ?date=YYYY-MM-DD
+src/pages/CalendarPage.jsx     ← header (view toggle, prev/next, today) + grid
+src/pages/SettingsPage.jsx     ← medication list + add form + default height
+supabase/migrations/0002,0005,0006
 ```
 
 **Data model** — `public.health_entries`:
@@ -320,15 +332,28 @@ supabase/migrations/0002_health_entries.sql
 id            uuid  PK  default gen_random_uuid()
 user_id       uuid  → auth.users(id) on delete cascade,  default auth.uid()
 entry_date    date  default current_date
-pain_level    smallint      (0–10, nullable)
-sleep_hours   numeric(4,2)  (0–24, nullable)
-sleep_quality text          ('poor'|'fair'|'good'|'excellent', nullable)
-sleep_note    text          (free text, ≤500 chars, nullable)
+pain_level    smallint      (0–10, nullable)      ┐ legacy typed columns; the calendar
+sleep_hours   numeric(4,2)  (0–24, nullable)      │ reads these directly. The client
+sleep_quality text          (poor|fair|good|excellent) │ mirrors the matching schema
+sleep_note    text          (≤500 chars, nullable)     ┘ fields into them on every save.
+data          jsonb  not null default '{}'  ← everything else, shape owned by healthSchema.js
 created_at / updated_at timestamptz
 unique (user_id, entry_date)
 ```
 
-RLS: every policy is `user_id = auth.uid()` (select / insert / update / delete).
+`public.user_medications`: id, user_id, name, dose, schedule
+(`daily|morning|evening|night|as_needed`), notes, is_active, sort_order. RLS
+`user_id = auth.uid()` on all four verbs, mirroring health_entries.
+`profiles.default_height_cm` prefills the BMI height field.
+
+RLS on health_entries: every policy is `user_id = auth.uid()` (select / insert / update / delete).
+
+**Entry `data` shape:** `{ [categoryId]: { [fieldKey]: value } }` — value is `''`,
+a number-string, `boolean` (toggle), `string[]` (multi), or `{ [medId]: "HH:MM"|true }`
+(meds). `mergeData` fills every field over `defaultData()` on load so entries saved
+before a field existed still render. `categoryStatus` counts non-empty fields for the
+card's green/grey dot + badge. Adding a field or category = one entry in `CATEGORIES`
+plus its i18n keys (`health.categories.*`, `health.fields.*`, `health.options.*`).
 
 **Entry flow (`/health`):** the page defaults `entry_date` to today (or `?date=`
 from a calendar click). `loadEntryForDate` fetches the row for that date; if one
@@ -360,6 +385,8 @@ section 3.
 - [ ] CI: lint + build on PR.
 - [ ] Error monitoring (Sentry) and analytics.
 - [ ] `profiles.locale` write-back on language change.
+- [ ] Pattern analysis over `data`: headache-trigger correlation, weight/BMI trends.
+- [ ] Surface `data` richness (beyond pain level) on the calendar grid.
 
 ---
 

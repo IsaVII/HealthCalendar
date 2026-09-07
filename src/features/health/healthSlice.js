@@ -1,6 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 import { loadEntryForDate, saveEntryForDate, loadEntriesInRange } from './healthThunks';
+import {
+  loadMedications,
+  addMedication,
+  updateMedication,
+  removeMedication,
+} from './medicationThunks';
 import { todayIso } from './healthConstants';
 
 /**
@@ -30,6 +36,9 @@ const initialState = {
   entriesByDate: {}, // 'YYYY-MM-DD' -> { pain_level, sleep_hours, sleep_quality }
   rangeStatus: 'idle', // 'idle' | 'loading' | 'ready' | 'error'
   rangeError: null,
+
+  // --- regular medications (managed in Settings) -----------------------
+  medications: { items: [], status: 'idle', error: null },
 };
 
 function indexByDate(entries) {
@@ -102,11 +111,36 @@ const healthSlice = createSlice({
       .addCase(loadEntriesInRange.rejected, (state, action) => {
         state.rangeStatus = 'error';
         state.rangeError = action.payload ?? { message: 'Error' };
+      })
+      .addCase(loadMedications.pending, (state) => {
+        state.medications.status = 'loading';
+        state.medications.error = null;
+      })
+      .addCase(loadMedications.fulfilled, (state, action) => {
+        state.medications.status = 'ready';
+        state.medications.items = action.payload.items;
+      })
+      .addCase(loadMedications.rejected, (state, action) => {
+        state.medications.status = 'error';
+        state.medications.error = action.payload ?? { message: 'Error' };
+      })
+      .addCase(addMedication.fulfilled, (state, action) => {
+        state.medications.items.push(action.payload.item);
+      })
+      .addCase(updateMedication.fulfilled, (state, action) => {
+        const i = state.medications.items.findIndex((m) => m.id === action.payload.item.id);
+        if (i !== -1) state.medications.items[i] = action.payload.item;
+      })
+      .addCase(removeMedication.fulfilled, (state, action) => {
+        state.medications.items = state.medications.items.filter(
+          (m) => m.id !== action.payload.id,
+        );
       });
   },
 });
 
 export { loadEntryForDate, saveEntryForDate, loadEntriesInRange };
+export { loadMedications, addMedication, updateMedication, removeMedication };
 export const { clearHealthError, clearSavedFlag, setCalendarView, setCalendarCursor } =
   healthSlice.actions;
 export default healthSlice.reducer;

@@ -16,3 +16,10 @@ export const selectCalendarCursor = (state) => state.health.calendarCursor;
 export const selectEntriesByDate = (state) => state.health.entriesByDate;
 export const selectRangeStatus = (state) => state.health.rangeStatus;
 export const selectRangeError = (state) => state.health.rangeError;
+
+// --- regular medications --------------------------------------------------
+export const selectMedications = (state) => state.health.medications.items;
+export const selectMedicationsStatus = (state) => state.health.medications.status;
+export const selectMedicationsError = (state) => state.health.medications.error;
+export const selectActiveMedications = (state) =>
+  state.health.medications.items.filter((m) => m.is_active);

@@ -10,7 +10,7 @@ import { supabase } from '@/lib/supabaseClient';
  * mock client.
  */
 const COLUMNS =
-  'id, entry_date, pain_level, sleep_hours, sleep_quality, sleep_note, created_at, updated_at';
+  'id, entry_date, pain_level, sleep_hours, sleep_quality, sleep_note, data, created_at, updated_at';
 
 export class HealthService {
   constructor(client = supabase) {
@@ -64,7 +64,7 @@ export class HealthService {
    * day edits the existing row rather than failing.
    *
    * @param {string} date  `YYYY-MM-DD`
-   * @param {{ painLevel: number|null, sleepHours: number|null, sleepQuality: string|null, sleepNote: string|null }} values
+   * @param {{ painLevel: number|null, sleepHours: number|null, sleepQuality: string|null, sleepNote: string|null, data: object }} values
    */
   async saveEntry(date, values) {
     const userId = await this.requireUserId();
@@ -76,6 +76,7 @@ export class HealthService {
       sleep_hours: values.sleepHours,
       sleep_quality: values.sleepQuality,
       sleep_note: values.sleepNote,
+      data: values.data ?? {},
       updated_at: new Date().toISOString(),
     };
 

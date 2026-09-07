@@ -41,6 +41,16 @@ export function AppLayout() {
             </nav>
           </div>
           <div className="flex items-center gap-3">
+            <NavLink
+              to="/settings"
+              className={({ isActive }) =>
+                `text-lg leading-none ${isActive ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`
+              }
+              aria-label={t('nav.settings')}
+              title={t('nav.settings')}
+            >
+              ⚙️
+            </NavLink>
             <ThemeToggle />
             <LanguageSwitcher />
             <span className="hidden text-sm text-content-muted sm:inline">{name}</span>

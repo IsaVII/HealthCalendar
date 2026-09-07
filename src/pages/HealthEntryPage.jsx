@@ -1,9 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
-import { loadEntryForDate, saveEntryForDate } from '@/features/health/healthSlice';
+import { selectAuthProfile } from '@/features/auth/authSelectors';
+import {
+  loadEntryForDate,
+  saveEntryForDate,
+  loadMedications,
+} from '@/features/health/healthSlice';
 import {
   selectHealthEntry,
   selectHealthLoadStatus,
@@ -13,24 +18,42 @@ import {
   selectHasEntry,
 } from '@/features/health/healthSelectors';
 import {
-  SLEEP_QUALITY_VALUES,
-  PAIN_LEVELS,
-  SLEEP_HOURS_MIN,
-  SLEEP_HOURS_MAX,
   todayIso,
   isIsoDate,
   entryToForm,
   formToValues,
 } from '@/features/health/healthConstants';
+import { CATEGORIES, mergeData, categoryStatus } from '@/features/health/healthSchema';
+import { CategoryCard } from '@/features/health/components/CategoryCard';
 import { FormField } from '@/components/ui/FormField';
-import { SelectField } from '@/components/ui/SelectField';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import { Spinner } from '@/components/ui/Spinner';
 
-const EMPTY_FORM = { painLevel: '', sleepHours: '', sleepQuality: '', sleepNote: '' };
+const EMPTY_FORM = { data: mergeData(null) };
 
-const SLEEP_NOTE_MAX = 500;
+const catKey = (id) => `health.cat.${id}`;
+
+function readStoredOpen() {
+  const m = {};
+  for (const c of CATEGORIES) {
+    try {
+      const v = localStorage.getItem(catKey(c.id));
+      if (v !== null) m[c.id] = v === '1';
+    } catch {
+      /* private mode / disabled storage */
+    }
+  }
+  return m;
+}
+
+function persistOpen(id, value) {
+  try {
+    localStorage.setItem(catKey(id), value ? '1' : '0');
+  } catch {
+    /* ignore */
+  }
+}
 
 // Only past/present days can be logged; anything else falls back to today.
 const isSelectableDate = (value) => isIsoDate(value) && value <= todayIso();
@@ -39,13 +62,14 @@ export function HealthEntryPage() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
-  // The day in view can be linked to from the calendar as ?date=YYYY-MM-DD.
   const [searchParams, setSearchParams] = useSearchParams();
   const paramDate = searchParams.get('date');
   const [date, setDate] = useState(() =>
     isSelectableDate(paramDate) ? paramDate : todayIso(),
   );
   const [form, setForm] = useState(EMPTY_FORM);
+  const [openMap, setOpenMap] = useState(readStoredOpen);
+  const hydratedFor = useRef(null);
 
   function changeDate(next) {
     const value = isSelectableDate(next) ? next : todayIso();
@@ -59,26 +83,71 @@ export function HealthEntryPage() {
   const savedAt = useAppSelector(selectHealthSavedAt);
   const error = useAppSelector(selectHealthError);
   const hasEntry = useAppSelector(selectHasEntry);
+  const profile = useAppSelector(selectAuthProfile);
 
-  // Follow the ?date= param when the page is already mounted (e.g. a second
-  // click from the calendar).
   useEffect(() => {
     if (isSelectableDate(paramDate) && paramDate !== date) setDate(paramDate);
   }, [paramDate, date]);
 
-  // Auto-load whenever the selected date changes (on mount it's today or ?date=).
+  useEffect(() => {
+    dispatch(loadMedications());
+  }, [dispatch]);
+
   useEffect(() => {
     dispatch(loadEntryForDate(date));
   }, [dispatch, date]);
 
-  // Mirror the loaded entry into the form: populate it when a row exists for
-  // this day, blank it when there's nothing logged yet.
+  // Mirror the loaded entry into the form; prefill the BMI height from the
+  // profile default when the day has none of its own.
   useEffect(() => {
     if (loadStatus !== 'ready') return;
-    setForm(entry ? entryToForm(entry) : EMPTY_FORM);
-  }, [entry, loadStatus]);
+    const next = entry ? entryToForm(entry) : { data: mergeData(null) };
+    if (!next.data.body.heightCm && profile?.default_height_cm != null) {
+      next.data.body.heightCm = String(profile.default_height_cm);
+    }
+    setForm(next);
+  }, [entry, loadStatus, profile]);
 
-  const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+  // Once per loaded day, open any category that has data and has no explicit
+  // saved preference; leave the rest as the user (or storage) left them.
+  useEffect(() => {
+    if (loadStatus !== 'ready' || hydratedFor.current === date) return;
+    hydratedFor.current = date;
+    const merged = mergeData(entry?.data);
+    setOpenMap((prev) => {
+      const next = { ...prev };
+      for (const c of CATEGORIES) {
+        if (next[c.id] === undefined && categoryStatus(merged, c).filled) next[c.id] = true;
+      }
+      return next;
+    });
+  }, [loadStatus, entry, date]);
+
+  const setOpen = (id, value) => {
+    setOpenMap((prev) => (prev[id] === value ? prev : { ...prev, [id]: value }));
+    persistOpen(id, value);
+  };
+
+  const setAll = (value) => {
+    setOpenMap(() => {
+      const next = {};
+      for (const c of CATEGORIES) {
+        next[c.id] = value;
+        persistOpen(c.id, value);
+      }
+      return next;
+    });
+  };
+
+  const changeField = (categoryId, fieldKey, value) => {
+    setForm((f) => ({
+      ...f,
+      data: {
+        ...f.data,
+        [categoryId]: { ...f.data[categoryId], [fieldKey]: value },
+      },
+    }));
+  };
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -88,95 +157,63 @@ export function HealthEntryPage() {
   const loading = loadStatus === 'loading';
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-3">
       <div className="flex items-baseline justify-between gap-3">
         <h1 className="text-2xl font-bold text-content">{t('health.title')}</h1>
         {loading && <Spinner className="h-4 w-4 text-brand-600" />}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit} className="space-y-3" noValidate>
         {error && <Alert tone="error">{error.message || t('health.saveError')}</Alert>}
         {savedAt && !error && <Alert tone="success">{t('health.saved')}</Alert>}
         {hasEntry && !savedAt && <Alert tone="info">{t('health.existingNote')}</Alert>}
 
-        <FormField
-          label={t('health.dateLabel')}
-          type="date"
-          name="entry_date"
-          max={todayIso()}
-          value={date}
-          onChange={(e) => changeDate(e.target.value)}
-        />
-
-        <SelectField
-          label={t('health.painLevel')}
-          name="pain_level"
-          hint={t('health.painLevelHint')}
-          disabled={loading}
-          value={form.painLevel}
-          onChange={update('painLevel')}
-        >
-          <option value="">{t('health.painLevelNone')}</option>
-          {PAIN_LEVELS.map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
-        </SelectField>
-
-        <FormField
-          label={t('health.sleepHours')}
-          type="number"
-          name="sleep_hours"
-          inputMode="decimal"
-          min={SLEEP_HOURS_MIN}
-          max={SLEEP_HOURS_MAX}
-          step={0.5}
-          disabled={loading}
-          value={form.sleepHours}
-          onChange={update('sleepHours')}
-        />
-
-        <div className="grid gap-4 sm:grid-cols-2 sm:items-start">
-          <SelectField
-            label={t('health.sleepQuality')}
-            name="sleep_quality"
-            disabled={loading}
-            value={form.sleepQuality}
-            onChange={update('sleepQuality')}
+        <div className="flex flex-wrap items-end gap-3">
+          <FormField
+            dense
+            className="w-40"
+            label={t('health.dateLabel')}
+            type="date"
+            name="entry_date"
+            max={todayIso()}
+            value={date}
+            onChange={(e) => changeDate(e.target.value)}
+          />
+          <button
+            type="button"
+            onClick={() => setAll(true)}
+            className="text-sm font-medium text-brand-600 hover:text-brand-700"
           >
-            <option value="">{t('health.sleepQualityOptions.none')}</option>
-            {SLEEP_QUALITY_VALUES.map((value) => (
-              <option key={value} value={value}>
-                {t(`health.sleepQualityOptions.${value}`)}
-              </option>
-            ))}
-          </SelectField>
-
-          <div>
-            <label
-              htmlFor="sleep_note"
-              className="mb-1 block text-sm font-medium text-content"
-            >
-              {t('health.sleepNote')}
-            </label>
-            <textarea
-              id="sleep_note"
-              name="sleep_note"
-              rows={3}
-              maxLength={SLEEP_NOTE_MAX}
-              disabled={loading}
-              placeholder={t('health.sleepNotePlaceholder')}
-              value={form.sleepNote}
-              onChange={update('sleepNote')}
-              className="block w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-content shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30"
-            />
-          </div>
+            {t('health.expandAll')}
+          </button>
+          <span className="text-content-subtle">·</span>
+          <button
+            type="button"
+            onClick={() => setAll(false)}
+            className="text-sm font-medium text-brand-600 hover:text-brand-700"
+          >
+            {t('health.collapseAll')}
+          </button>
         </div>
 
-        <Button type="submit" loading={saving} disabled={loading}>
-          {t('health.save')}
-        </Button>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {CATEGORIES.map((category) => (
+            <CategoryCard
+              key={category.id}
+              category={category}
+              data={form.data}
+              open={Boolean(openMap[category.id])}
+              onToggle={(value) => setOpen(category.id, value)}
+              onChangeField={changeField}
+            />
+          ))}
+        </div>
+
+        <div className="sticky bottom-0 -mx-4 border-t border-border bg-canvas/90 px-4 py-2 backdrop-blur sm:bottom-0">
+          <Button type="submit" loading={saving} disabled={loading}>
+            {t('health.save')}
+          </Button>
+        </div>
       </form>
     </section>
   );

@@ -6,6 +6,7 @@ import {
   logoutUser,
   resendVerification,
   loadMyProfile,
+  updateMyProfile,
   requestPasswordReset,
   resetPassword,
 } from './authThunks';
@@ -69,6 +70,9 @@ const authSlice = createSlice({
       .addCase(loadMyProfile.fulfilled, (state, action) => {
         state.profile = action.payload;
       })
+      .addCase(updateMyProfile.fulfilled, (state, action) => {
+        state.profile = { ...state.profile, ...action.payload };
+      })
       .addMatcher(pendingMatcher, (state) => {
         state.pending = true;
         state.error = null;
@@ -89,6 +93,7 @@ export {
   logoutUser,
   resendVerification,
   loadMyProfile,
+  updateMyProfile,
   requestPasswordReset,
   resetPassword,
 };

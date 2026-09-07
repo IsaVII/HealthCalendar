@@ -1,0 +1,203 @@
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { useAppDispatch, useAppSelector } from '@/app/hooks';
+import { selectAuthProfile } from '@/features/auth/authSelectors';
+import { updateMyProfile } from '@/features/auth/authSlice';
+import {
+  loadMedications,
+  addMedication,
+  updateMedication,
+  removeMedication,
+} from '@/features/health/healthSlice';
+import {
+  selectMedications,
+  selectMedicationsStatus,
+  selectMedicationsError,
+} from '@/features/health/healthSelectors';
+import { FormField } from '@/components/ui/FormField';
+import { SelectField } from '@/components/ui/SelectField';
+import { Button } from '@/components/ui/Button';
+import { Alert } from '@/components/ui/Alert';
+import { Spinner } from '@/components/ui/Spinner';
+
+const SCHEDULES = ['daily', 'morning', 'evening', 'night', 'as_needed'];
+
+function MedicationRow({ med }) {
+  const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const [name, setName] = useState(med.name);
+  const [dose, setDose] = useState(med.dose ?? '');
+
+  const commit = (patch) => dispatch(updateMedication({ id: med.id, patch }));
+
+  return (
+    <li className="grid gap-2 rounded-lg border border-border bg-surface p-2 sm:grid-cols-[1fr_1fr_auto_auto_auto] sm:items-end">
+      <FormField
+        dense
+        label={t('settings.medName')}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        onBlur={() => name.trim() && name !== med.name && commit({ name: name.trim() })}
+      />
+      <FormField
+        dense
+        label={t('settings.medDose')}
+        value={dose}
+        onChange={(e) => setDose(e.target.value)}
+        onBlur={() => dose !== (med.dose ?? '') && commit({ dose: dose.trim() || null })}
+      />
+      <SelectField
+        dense
+        label={t('settings.medSchedule')}
+        value={med.schedule ?? ''}
+        onChange={(e) => commit({ schedule: e.target.value || null })}
+      >
+        <option value="">—</option>
+        {SCHEDULES.map((s) => (
+          <option key={s} value={s}>
+            {t(`settings.schedules.${s}`)}
+          </option>
+        ))}
+      </SelectField>
+      <label className="flex min-h-9 items-center gap-1.5 text-sm text-content">
+        <input
+          type="checkbox"
+          className="h-4 w-4 rounded border-border text-brand-600 focus:ring-brand-500/30"
+          checked={med.is_active}
+          onChange={(e) => commit({ is_active: e.target.checked })}
+        />
+        {t('settings.medActive')}
+      </label>
+      <Button
+        variant="ghost"
+        className="w-auto px-2 text-red-600 hover:bg-red-50"
+        onClick={() => {
+          if (window.confirm(t('settings.medDeleteConfirm', { name: med.name }))) {
+            dispatch(removeMedication(med.id));
+          }
+        }}
+      >
+        {t('settings.medDelete')}
+      </Button>
+    </li>
+  );
+}
+
+export function SettingsPage() {
+  const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+
+  const meds = useAppSelector(selectMedications);
+  const medsStatus = useAppSelector(selectMedicationsStatus);
+  const medsError = useAppSelector(selectMedicationsError);
+  const profile = useAppSelector(selectAuthProfile);
+
+  const [draft, setDraft] = useState({ name: '', dose: '', schedule: '' });
+  const [height, setHeight] = useState('');
+  const [heightSaved, setHeightSaved] = useState(false);
+
+  useEffect(() => {
+    dispatch(loadMedications());
+  }, [dispatch]);
+
+  useEffect(() => {
+    setHeight(profile?.default_height_cm != null ? String(profile.default_height_cm) : '');
+  }, [profile?.default_height_cm]);
+
+  async function handleAdd(e) {
+    e.preventDefault();
+    if (!draft.name.trim()) return;
+    const result = await dispatch(addMedication(draft));
+    if (addMedication.fulfilled.match(result)) setDraft({ name: '', dose: '', schedule: '' });
+  }
+
+  async function saveHeight(e) {
+    e.preventDefault();
+    const value = height === '' ? null : Number(height);
+    await dispatch(updateMyProfile({ default_height_cm: value }));
+    setHeightSaved(true);
+    setTimeout(() => setHeightSaved(false), 2500);
+  }
+
+  return (
+    <section className="space-y-6">
+      <h1 className="text-2xl font-bold text-content">{t('settings.title')}</h1>
+
+      <div className="space-y-3 rounded-xl border border-border bg-surface p-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-content">{t('settings.medications')}</h2>
+          {medsStatus === 'loading' && <Spinner className="h-4 w-4 text-brand-600" />}
+        </div>
+        <p className="text-sm text-content-muted">{t('settings.medicationsHint')}</p>
+
+        {medsError && <Alert tone="error">{medsError.message}</Alert>}
+
+        {meds.length > 0 && (
+          <ul className="space-y-2">
+            {meds.map((med) => (
+              <MedicationRow key={med.id} med={med} />
+            ))}
+          </ul>
+        )}
+
+        <form
+          onSubmit={handleAdd}
+          className="grid gap-2 border-t border-border pt-3 sm:grid-cols-[1fr_1fr_auto_auto] sm:items-end"
+        >
+          <FormField
+            dense
+            label={t('settings.medName')}
+            required
+            value={draft.name}
+            onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
+          />
+          <FormField
+            dense
+            label={t('settings.medDose')}
+            value={draft.dose}
+            onChange={(e) => setDraft((d) => ({ ...d, dose: e.target.value }))}
+          />
+          <SelectField
+            dense
+            label={t('settings.medSchedule')}
+            value={draft.schedule}
+            onChange={(e) => setDraft((d) => ({ ...d, schedule: e.target.value }))}
+          >
+            <option value="">—</option>
+            {SCHEDULES.map((s) => (
+              <option key={s} value={s}>
+                {t(`settings.schedules.${s}`)}
+              </option>
+            ))}
+          </SelectField>
+          <Button type="submit" className="w-auto px-3">
+            {t('settings.medAdd')}
+          </Button>
+        </form>
+      </div>
+
+      <form onSubmit={saveHeight} className="space-y-3 rounded-xl border border-border bg-surface p-4">
+        <h2 className="text-lg font-semibold text-content">{t('settings.body')}</h2>
+        {heightSaved && <Alert tone="success">{t('settings.saved')}</Alert>}
+        <div className="flex items-end gap-3">
+          <FormField
+            dense
+            className="w-40"
+            type="number"
+            inputMode="decimal"
+            min={30}
+            max={260}
+            step={0.5}
+            label={t('settings.defaultHeight')}
+            value={height}
+            onChange={(e) => setHeight(e.target.value)}
+          />
+          <Button type="submit" className="w-auto px-3">
+            {t('common.save')}
+          </Button>
+        </div>
+      </form>
+    </section>
+  );
+}

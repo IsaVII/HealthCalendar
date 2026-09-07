@@ -54,6 +54,13 @@ export const loadMyProfile = createAsyncThunk(
   }),
 );
 
+export const updateMyProfile = createAsyncThunk(
+  'auth/updateMyProfile',
+  withAuthError(async (patch) => {
+    return await profileService.updateMyProfile(patch);
+  }),
+);
+
 export const requestPasswordReset = createAsyncThunk(
   'auth/requestPasswordReset',
   withAuthError(async (email) => {
