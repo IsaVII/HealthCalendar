@@ -443,6 +443,10 @@ Supabase dashboard checklist:
   copy of `index.html` so SPA deep links / refreshes resolve. `AppRouter` uses
   `basename={import.meta.env.BASE_URL}`, so the same source builds at `/`
   locally. One-time setup: repo **Settings → Pages → Source: GitHub Actions**;
-  add repo **Variables** `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`; add
-  the resulting `https://<user>.github.io/<repo>/` URL to Supabase
-  Auth → URL Configuration.
+  add `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` under
+  **Settings → Secrets and variables → Actions** (Variables *or* Secrets tab —
+  the workflow reads `vars.X || secrets.X`); add the resulting
+  `https://<user>.github.io/<repo>/` URL to Supabase Auth → URL Configuration.
+  A build with those unset fails fast (a guard step in `deploy.yml`) rather than
+  shipping a bundle that throws `Missing required environment variable` at
+  runtime.

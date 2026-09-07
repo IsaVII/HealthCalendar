@@ -67,9 +67,16 @@ Pushing to `master` runs:
 One-time repo setup:
 
 1. **Settings → Pages → Source: GitHub Actions**.
-2. **Settings → Secrets and variables → Actions → Variables** → add
-   `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+2. **Settings → Secrets and variables → Actions** → add `VITE_SUPABASE_URL` and
+   `VITE_SUPABASE_ANON_KEY`. Either the **Variables** or the **Secrets** tab
+   works — the deploy workflow reads both. (The anon key is meant to ship in the
+   client bundle; RLS is the security boundary, so a Variable is fine.)
 3. Add the Pages URL to Supabase Auth → URL Configuration (step 4 above).
+4. Re-run the **Deploy to GitHub Pages** workflow (Actions tab → Run workflow).
+
+> **`Missing required environment variable "VITE_SUPABASE_URL"` on the live
+> site** means step 2 was skipped or the names don't match — the site was built
+> without the config. Fix the values and re-run the workflow (step 4).
 
 ## Project layout
 

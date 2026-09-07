@@ -37,14 +37,28 @@ jobs:
         id: pages
         uses: actions/configure-pages@v5
 
+      # Supabase config. Set these in the repo under
+      #   Settings → Secrets and variables → Actions
+      # Either tab works — a repository *Variable* or a repository *Secret*
+      # named VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY. The anon key is safe to
+      # expose in a client bundle (RLS protects the data), so a Variable is fine.
+      - name: Check Supabase config is present
+        env:
+          URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          KEY: ${{ vars.VITE_SUPABASE_ANON_KEY || secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "::error::VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY are not set."
+            echo "::error::Add them under Settings → Secrets and variables → Actions (Variables or Secrets tab)."
+            exit 1
+          fi
+
       - name: Build
         env:
           # base path = "/<repo>/" so asset URLs resolve on project Pages.
           VITE_BASE: ${{ steps.pages.outputs.base_path }}/
-          # Supabase config — set these in the repo:
-          #   Settings → Secrets and variables → Actions → Variables
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY || secrets.VITE_SUPABASE_ANON_KEY }}
           # Must match the deployed URL and be in Supabase Auth → URL Configuration.
           VITE_SITE_URL: ${{ steps.pages.outputs.base_url }}
         run: npm run build
