@@ -10,6 +10,7 @@ import { VerifyEmailPage } from '@/pages/VerifyEmailPage';
 import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
 import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
 import { DashboardPage } from '@/pages/DashboardPage';
+import { HealthEntryPage } from '@/pages/HealthEntryPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 export function AppRouter() {
@@ -31,6 +32,7 @@ export function AppRouter() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/health" element={<HealthEntryPage />} />
           </Route>
         </Route>
 

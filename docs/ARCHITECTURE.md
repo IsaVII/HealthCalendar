@@ -1,9 +1,9 @@
 # HealthCalendar — Architecture
 
-> Status: **foundation only**. This document describes the target architecture and
-> what exists today. No health-tracking features are implemented yet — the current
-> scope is a multi-language, mobile-friendly web app with a Supabase-backed
-> authentication system (register / verify email / log in / log out).
+> Status: **foundation + first health feature**. This document describes the target
+> architecture and what exists today: a multi-language, mobile-friendly web app
+> with Supabase-backed auth (register / verify email / log in / log out) and a
+> daily health-data entry page (`/health`) — see section 8.
 
 ---
 
@@ -78,7 +78,8 @@ HealthCalendar/
 │   └── ARCHITECTURE.md            ← this file
 ├── supabase/
 │   └── migrations/
-│       └── 0001_auth_profiles.sql ← profiles table, trigger, RLS, RPCs
+│       ├── 0001_auth_profiles.sql ← profiles table, trigger, RLS, RPCs
+│       └── 0002_health_entries.sql ← daily health_entries table + RLS
 ├── index.html
 ├── vite.config.js
 ├── tailwind.config.js
@@ -113,15 +114,22 @@ HealthCalendar/
     │   ├── ForgotPasswordPage.jsx
     │   ├── ResetPasswordPage.jsx
     │   ├── DashboardPage.jsx      ← placeholder, no health data
+    │   ├── HealthEntryPage.jsx    ← daily health-data form (/health)
     │   └── NotFoundPage.jsx
     └── features/
-        └── auth/
-            ├── AuthService.js     ← class: sign up / in / out, resend, resolve
-            ├── ProfileService.js  ← class: profile read/update, username checks
-            ├── authSlice.js       ← session + status + error state
-            ├── authThunks.js      ← async actions wrapping the services
-            ├── authSelectors.js   ← memo-friendly selectors
-            └── AuthProvider.jsx   ← subscribes to Supabase auth changes
+        ├── auth/
+        │   ├── AuthService.js     ← class: sign up / in / out, resend, resolve
+        │   ├── ProfileService.js  ← class: profile read/update, username checks
+        │   ├── authSlice.js       ← session + status + error state
+        │   ├── authThunks.js      ← async actions wrapping the services
+        │   ├── authSelectors.js   ← memo-friendly selectors
+        │   └── AuthProvider.jsx   ← subscribes to Supabase auth changes
+        └── health/
+            ├── HealthService.js   ← class: getEntryByDate / saveEntry (upsert)
+            ├── healthSlice.js     ← day in view + load/save status
+            ├── healthThunks.js    ← loadEntryForDate / saveEntryForDate
+            ├── healthSelectors.js ← memo-friendly selectors
+            └── healthConstants.js ← enums, ranges, entry⇄form mappers
 ```
 
 ---
@@ -226,7 +234,7 @@ a CAPTCHA/turnstile token. Tracked in section 9.
 
 ## 6. State management
 
-One slice today: `auth`.
+Two slices: `auth` and `health` (section 8).
 
 ```
 state.auth = {
@@ -267,25 +275,46 @@ its reducer in `src/app/store.js`.
 
 ---
 
-## 8. Where health features will plug in (not built yet)
+## 8. Health data (first feature — built)
+
+A single page, `/health`, where a signed-in user records one entry per day.
 
 ```
 src/features/health/
-  HealthService.js      ← CRUD against new tables via supabase-js
-  healthSlice.js        ← entries, metrics, ranges
-  healthThunks.js
-  healthSelectors.js
-  components/…
+  HealthService.js      ← getEntryByDate(date) / saveEntry(date, values); upsert via supabase-js
+  healthThunks.js       ← loadEntryForDate, saveEntryForDate
+  healthSlice.js        ← { date, entry, loadStatus, saving, savedAt, error }
+  healthSelectors.js    ← the only way the page reads health state
+  healthConstants.js    ← SLEEP_QUALITY_VALUES, ranges, todayIso(), entry⇄form mappers
 
-supabase/migrations/
-  0002_health_entries.sql   ← tables + RLS (user_id = auth.uid())
-
-src/routes/AppRouter.jsx    ← add /calendar, /entries/:id behind ProtectedRoute
-src/components/layout/AppLayout.jsx ← add nav items
+src/pages/HealthEntryPage.jsx        ← the form
+src/components/ui/SelectField.jsx    ← <select> sibling of FormField
+supabase/migrations/0002_health_entries.sql
 ```
 
-No existing file needs restructuring to add this — that is the point of the
-layering in section 3.
+**Data model** — `public.health_entries`:
+
+```
+id            uuid  PK  default gen_random_uuid()
+user_id       uuid  → auth.users(id) on delete cascade,  default auth.uid()
+entry_date    date  default current_date
+pain_level    smallint      (0–10, nullable)
+sleep_hours   numeric(4,2)  (0–24, nullable)
+sleep_quality text          ('poor'|'fair'|'good'|'excellent', nullable)
+created_at / updated_at timestamptz
+unique (user_id, entry_date)
+```
+
+RLS: every policy is `user_id = auth.uid()` (select / insert / update / delete).
+
+**Flow:** the page defaults `entry_date` to today. `loadEntryForDate` fetches the
+row for the selected date; if one exists the form is pre-filled, otherwise it is
+blank. `saveEntryForDate` upserts on `(user_id, entry_date)`, so re-saving a day
+edits its row rather than creating a duplicate. Changing the date input reloads.
+
+No existing file was restructured to add this — that is the point of the layering
+in section 3. Adding the next feature (calendar overview, ranges, more metrics)
+follows the same file set.
 
 ---
 
@@ -306,7 +335,7 @@ layering in section 3.
 ```bash
 cp .env.example .env          # fill in Supabase URL + anon key
 npm install
-# apply supabase/migrations/0001_auth_profiles.sql to your project
+# apply supabase/migrations/*.sql to your project, in order
 #   (Supabase SQL editor, or `supabase db push` with the CLI)
 npm run dev                   # http://localhost:5173
 ```
@@ -315,4 +344,4 @@ Supabase dashboard checklist:
 1. Auth → Providers → Email → enable "Confirm email".
 2. Auth → URL Configuration → add `http://localhost:5173` and your prod URL to
    the redirect allow-list.
-3. Run the migration.
+3. Run the migrations (`0001` then `0002`).

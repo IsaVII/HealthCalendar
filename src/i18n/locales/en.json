@@ -12,6 +12,7 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "health": "Health",
     "logout": "Log out"
   },
   "auth": {
@@ -64,6 +65,26 @@
     "title": "Dashboard",
     "welcome": "Welcome, {{name}}.",
     "placeholder": "Health tracking will appear here. Nothing to show yet."
+  },
+  "health": {
+    "title": "Health data",
+    "dateLabel": "Date",
+    "painLevel": "Pain level",
+    "painLevelHint": "0 = none, 10 = worst imaginable",
+    "sleepHours": "Sleep hours",
+    "sleepQuality": "Sleep quality",
+    "sleepQualityOptions": {
+      "none": "—",
+      "poor": "Poor",
+      "fair": "Fair",
+      "good": "Good",
+      "excellent": "Excellent"
+    },
+    "save": "Save entry",
+    "saved": "Entry saved.",
+    "existingNote": "You already logged this day. Saving will update it.",
+    "loadError": "Couldn't load this day's entry.",
+    "saveError": "Couldn't save. Please try again."
   },
   "notFound": {
     "title": "Page not found",

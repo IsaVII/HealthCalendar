@@ -13,13 +13,31 @@ export function AppLayout() {
   const dispatch = useAppDispatch();
   const name = useAppSelector(selectDisplayName);
 
-  const navItems = [{ to: '/dashboard', label: t('nav.dashboard') }];
+  const navItems = [
+    { to: '/dashboard', label: t('nav.dashboard') },
+    { to: '/health', label: t('nav.health') },
+  ];
 
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="border-b border-slate-200 bg-white safe-px">
         <div className="mx-auto flex w-full max-w-3xl items-center justify-between py-3">
-          <span className="font-bold text-brand-700">{t('common.appName')}</span>
+          <div className="flex items-center gap-6">
+            <span className="font-bold text-brand-700">{t('common.appName')}</span>
+            <nav className="hidden gap-4 sm:flex">
+              {navItems.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    `text-sm font-medium ${isActive ? 'text-brand-700' : 'text-slate-500 hover:text-slate-700'}`
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </nav>
+          </div>
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
             <span className="hidden text-sm text-slate-500 sm:inline">{name}</span>

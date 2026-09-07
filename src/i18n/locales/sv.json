@@ -12,6 +12,7 @@
   },
   "nav": {
     "dashboard": "Översikt",
+    "health": "Hälsa",
     "logout": "Logga ut"
   },
   "auth": {
@@ -64,6 +65,26 @@
     "title": "Översikt",
     "welcome": "Välkommen, {{name}}.",
     "placeholder": "Hälsospårning kommer att visas här. Inget att visa än."
+  },
+  "health": {
+    "title": "Hälsodata",
+    "dateLabel": "Datum",
+    "painLevel": "Smärtnivå",
+    "painLevelHint": "0 = ingen, 10 = värsta tänkbara",
+    "sleepHours": "Sömntimmar",
+    "sleepQuality": "Sömnkvalitet",
+    "sleepQualityOptions": {
+      "none": "—",
+      "poor": "Dålig",
+      "fair": "Okej",
+      "good": "Bra",
+      "excellent": "Utmärkt"
+    },
+    "save": "Spara post",
+    "saved": "Posten sparades.",
+    "existingNote": "Du har redan loggat den här dagen. Om du sparar uppdateras den.",
+    "loadError": "Kunde inte ladda dagens post.",
+    "saveError": "Kunde inte spara. Försök igen."
   },
   "notFound": {
     "title": "Sidan hittades inte",
