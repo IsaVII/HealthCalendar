@@ -65,7 +65,8 @@
   "dashboard": {
     "title": "Översikt",
     "welcome": "Välkommen, {{name}}.",
-    "placeholder": "Hälsospårning kommer att visas här. Inget att visa än."
+    "placeholder": "Hälsospårning kommer att visas här. Inget att visa än.",
+    "viewFullCalendar": "Visa hela kalendern"
   },
   "health": {
     "title": "Hälsodata",

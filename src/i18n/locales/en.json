@@ -65,7 +65,8 @@
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Welcome, {{name}}.",
-    "placeholder": "Health tracking will appear here. Nothing to show yet."
+    "placeholder": "Health tracking will appear here. Nothing to show yet.",
+    "viewFullCalendar": "View full calendar"
   },
   "health": {
     "title": "Health data",
