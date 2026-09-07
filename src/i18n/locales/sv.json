@@ -84,6 +84,8 @@
       "good": "Bra",
       "excellent": "Utmärkt"
     },
+    "sleepNote": "Sömnanteckning",
+    "sleepNotePlaceholder": "t.ex. vaknade 3 gånger",
     "save": "Spara post",
     "saved": "Posten sparades.",
     "existingNote": "Du har redan loggat den här dagen. Om du sparar uppdateras den.",

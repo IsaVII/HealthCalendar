@@ -28,7 +28,9 @@ import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import { Spinner } from '@/components/ui/Spinner';
 
-const EMPTY_FORM = { painLevel: '', sleepHours: '', sleepQuality: '' };
+const EMPTY_FORM = { painLevel: '', sleepHours: '', sleepQuality: '', sleepNote: '' };
+
+const SLEEP_NOTE_MAX = 500;
 
 // Only past/present days can be logged; anything else falls back to today.
 const isSelectableDate = (value) => isIsoDate(value) && value <= todayIso();
@@ -135,20 +137,42 @@ export function HealthEntryPage() {
           onChange={update('sleepHours')}
         />
 
-        <SelectField
-          label={t('health.sleepQuality')}
-          name="sleep_quality"
-          disabled={loading}
-          value={form.sleepQuality}
-          onChange={update('sleepQuality')}
-        >
-          <option value="">{t('health.sleepQualityOptions.none')}</option>
-          {SLEEP_QUALITY_VALUES.map((value) => (
-            <option key={value} value={value}>
-              {t(`health.sleepQualityOptions.${value}`)}
-            </option>
-          ))}
-        </SelectField>
+        <div className="grid gap-4 sm:grid-cols-2 sm:items-start">
+          <SelectField
+            label={t('health.sleepQuality')}
+            name="sleep_quality"
+            disabled={loading}
+            value={form.sleepQuality}
+            onChange={update('sleepQuality')}
+          >
+            <option value="">{t('health.sleepQualityOptions.none')}</option>
+            {SLEEP_QUALITY_VALUES.map((value) => (
+              <option key={value} value={value}>
+                {t(`health.sleepQualityOptions.${value}`)}
+              </option>
+            ))}
+          </SelectField>
+
+          <div>
+            <label
+              htmlFor="sleep_note"
+              className="mb-1 block text-sm font-medium text-content"
+            >
+              {t('health.sleepNote')}
+            </label>
+            <textarea
+              id="sleep_note"
+              name="sleep_note"
+              rows={3}
+              maxLength={SLEEP_NOTE_MAX}
+              disabled={loading}
+              placeholder={t('health.sleepNotePlaceholder')}
+              value={form.sleepNote}
+              onChange={update('sleepNote')}
+              className="block w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-content shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30"
+            />
+          </div>
+        </div>
 
         <Button type="submit" loading={saving} disabled={loading}>
           {t('health.save')}

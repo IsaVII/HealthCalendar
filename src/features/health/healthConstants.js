@@ -41,6 +41,7 @@ export function entryToForm(entry) {
     painLevel: entry?.pain_level ?? '',
     sleepHours: entry?.sleep_hours ?? '',
     sleepQuality: entry?.sleep_quality ?? '',
+    sleepNote: entry?.sleep_note ?? '',
   };
 }
 
@@ -51,5 +52,6 @@ export function formToValues(form) {
     painLevel: num(form.painLevel),
     sleepHours: num(form.sleepHours),
     sleepQuality: form.sleepQuality || null,
+    sleepNote: form.sleepNote?.trim() ? form.sleepNote.trim() : null,
   };
 }

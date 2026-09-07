@@ -81,7 +81,8 @@ HealthCalendar/
 │   └── migrations/
 │       ├── 0001_auth_profiles.sql  ← profiles table, trigger, RLS, RPCs
 │       ├── 0002_health_entries.sql ← daily health_entries table + RLS
-│       └── 0003_profiles_locale.sql ← adds profiles.locale if the table pre-existed
+│       ├── 0003_profiles_locale.sql ← adds profiles.locale if the table pre-existed
+│       └── 0004_health_entries_sleep_note.sql ← adds free-text health_entries.sleep_note
 ├── index.html
 ├── vite.config.js
 ├── tailwind.config.js
@@ -322,6 +323,7 @@ entry_date    date  default current_date
 pain_level    smallint      (0–10, nullable)
 sleep_hours   numeric(4,2)  (0–24, nullable)
 sleep_quality text          ('poor'|'fair'|'good'|'excellent', nullable)
+sleep_note    text          (free text, ≤500 chars, nullable)
 created_at / updated_at timestamptz
 unique (user_id, entry_date)
 ```

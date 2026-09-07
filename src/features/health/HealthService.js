@@ -9,7 +9,8 @@ import { supabase } from '@/lib/supabaseClient';
  * Exposed as a singleton (`healthService`); the class stays testable with a
  * mock client.
  */
-const COLUMNS = 'id, entry_date, pain_level, sleep_hours, sleep_quality, created_at, updated_at';
+const COLUMNS =
+  'id, entry_date, pain_level, sleep_hours, sleep_quality, sleep_note, created_at, updated_at';
 
 export class HealthService {
   constructor(client = supabase) {
@@ -63,7 +64,7 @@ export class HealthService {
    * day edits the existing row rather than failing.
    *
    * @param {string} date  `YYYY-MM-DD`
-   * @param {{ painLevel: number|null, sleepHours: number|null, sleepQuality: string|null }} values
+   * @param {{ painLevel: number|null, sleepHours: number|null, sleepQuality: string|null, sleepNote: string|null }} values
    */
   async saveEntry(date, values) {
     const userId = await this.requireUserId();
@@ -74,6 +75,7 @@ export class HealthService {
       pain_level: values.painLevel,
       sleep_hours: values.sleepHours,
       sleep_quality: values.sleepQuality,
+      sleep_note: values.sleepNote,
       updated_at: new Date().toISOString(),
     };
 

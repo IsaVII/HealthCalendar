@@ -84,6 +84,8 @@
       "good": "Good",
       "excellent": "Excellent"
     },
+    "sleepNote": "Sleep note",
+    "sleepNotePlaceholder": "e.g. woke up 3 times",
     "save": "Save entry",
     "saved": "Entry saved.",
     "existingNote": "You already logged this day. Saving will update it.",
