@@ -286,6 +286,9 @@ its reducer in `src/app/store.js`.
 
 - `src/i18n/index.js` initialises i18next with `LanguageDetector`
   (order: `localStorage` → `navigator`), `fallbackLng: 'en'`.
+- Locales: `en`, `sv`, `de` (`SUPPORTED_LANGUAGES` in `src/i18n/index.js`); each
+  is one `locales/<code>.json` with the same key tree. Add a language = add the
+  file + one `SUPPORTED_LANGUAGES` entry + one `resources` entry.
 - Namespaces: single `translation` namespace for now; split later
   (`auth`, `common`, `health`) when it grows.
 - `<LanguageSwitcher/>` calls `i18n.changeLanguage(lng)` and persists to
