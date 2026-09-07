@@ -1,0 +1,72 @@
+{
+  "common": {
+    "appName": "HealthCalendar",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "retry": "Try again",
+    "email": "Email",
+    "username": "Username",
+    "password": "Password",
+    "language": "Language"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "logout": "Log out"
+  },
+  "auth": {
+    "login": {
+      "title": "Log in",
+      "identifierLabel": "Username or email",
+      "submit": "Log in",
+      "noAccount": "No account yet?",
+      "registerLink": "Create one",
+      "forgotPassword": "Forgot your password?"
+    },
+    "register": {
+      "title": "Create your account",
+      "submit": "Sign up",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Log in",
+      "usernameHint": "3–30 characters, letters, numbers and underscores"
+    },
+    "verifyEmail": {
+      "title": "Confirm your email",
+      "body": "We sent a confirmation link to {{email}}. Open it to activate your account.",
+      "resend": "Resend the email",
+      "resent": "Sent. Check your inbox.",
+      "backToLogin": "Back to log in"
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "body": "Enter your email and we'll send you a reset link.",
+      "submit": "Send reset link",
+      "sent": "If that email exists, a reset link is on its way."
+    },
+    "resetPassword": {
+      "title": "Choose a new password",
+      "submit": "Update password",
+      "done": "Password updated. You can log in now."
+    },
+    "errors": {
+      "invalidCredentials": "Wrong username/email or password.",
+      "emailNotConfirmed": "Confirm your email before logging in.",
+      "usernameTaken": "That username is taken.",
+      "usernameNotFound": "No account with that username.",
+      "weakPassword": "Use at least 8 characters.",
+      "passwordMismatch": "The passwords don't match.",
+      "invalidEmail": "Enter a valid email address.",
+      "invalidUsername": "3–30 characters: letters, numbers, underscores.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome, {{name}}.",
+    "placeholder": "Health tracking will appear here. Nothing to show yet."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "back": "Go home"
+  }
+}
