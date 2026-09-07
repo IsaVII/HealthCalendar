@@ -32,7 +32,7 @@ create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 begin
   insert into public.profiles (id, username)
@@ -75,7 +75,7 @@ create or replace function public.username_available(name text)
 returns boolean
 language sql
 security definer
-set search_path = public
+set search_path = public, extensions
 stable
 as $$
   select not exists (select 1 from public.profiles where username = lower(name));
@@ -93,7 +93,7 @@ create or replace function public.email_for_identifier(identifier text)
 returns text
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 stable
 as $$
 declare
