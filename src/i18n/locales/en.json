@@ -314,6 +314,8 @@
       "night": "Night",
       "as_needed": "As needed"
     },
+    "fields": "Daily entry fields",
+    "fieldsHint": "Untick anything you don't want to track — it won't appear on the daily entry.",
     "body": "Body",
     "defaultHeight": "Default height (cm)",
     "saved": "Saved."

@@ -314,6 +314,8 @@
       "night": "Nachts",
       "as_needed": "Bei Bedarf"
     },
+    "fields": "Felder im Tageseintrag",
+    "fieldsHint": "Entferne den Haken bei allem, was du nicht erfassen willst — es erscheint dann nicht im Tageseintrag.",
     "body": "Körper",
     "defaultHeight": "Standardgröße (cm)",
     "saved": "Gespeichert."

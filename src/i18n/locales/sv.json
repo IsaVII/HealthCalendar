@@ -314,6 +314,8 @@
       "night": "Natt",
       "as_needed": "Vid behov"
     },
+    "fields": "Fält i dagsposten",
+    "fieldsHint": "Avmarkera det du inte vill spåra — det visas då inte i dagsposten.",
     "body": "Kropp",
     "defaultHeight": "Standardlängd (cm)",
     "saved": "Sparat."

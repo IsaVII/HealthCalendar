@@ -225,6 +225,29 @@ export const CATEGORIES = [
 /** Selectable pain levels, [0..10]; option label is the number itself. */
 export const PAIN_OPTION_VALUES = Array.from({ length: 11 }, (_, i) => String(i));
 
+/** True when `key` (a category id, or `"<catId>.<fieldKey>"`) is hidden. */
+export function isFieldHidden(hidden, categoryId, fieldKey) {
+  return hidden.includes(categoryId) || hidden.includes(`${categoryId}.${fieldKey}`);
+}
+
+/**
+ * `CATEGORIES` with the user's hidden categories dropped and hidden fields (and
+ * the row slots that referenced them) filtered out. A category left with no
+ * visible fields is dropped too.
+ */
+export function visibleCategories(hidden = []) {
+  return CATEGORIES.filter((c) => !hidden.includes(c.id))
+    .map((c) => {
+      const fields = c.fields.filter((f) => !isFieldHidden(hidden, c.id, f.key));
+      const visible = new Set(fields.map((f) => f.key));
+      const rows = c.rows
+        ? c.rows.map((r) => r.filter((k) => visible.has(k))).filter((r) => r.length > 0)
+        : undefined;
+      return { ...c, fields, rows };
+    })
+    .filter((c) => c.fields.length > 0);
+}
+
 /** A nested, empty `data` object keyed by category id. */
 export function defaultData() {
   const out = {};

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -23,7 +23,12 @@ import {
   entryToForm,
   formToValues,
 } from '@/features/health/healthConstants';
-import { CATEGORIES, mergeData, categoryStatus } from '@/features/health/healthSchema';
+import {
+  CATEGORIES,
+  mergeData,
+  categoryStatus,
+  visibleCategories,
+} from '@/features/health/healthSchema';
 import { CategoryCard } from '@/features/health/components/CategoryCard';
 import { FormField } from '@/components/ui/FormField';
 import { Button } from '@/components/ui/Button';
@@ -85,6 +90,11 @@ export function HealthEntryPage() {
   const hasEntry = useAppSelector(selectHasEntry);
   const profile = useAppSelector(selectAuthProfile);
 
+  const categories = useMemo(
+    () => visibleCategories(profile?.hidden_health_fields ?? []),
+    [profile?.hidden_health_fields],
+  );
+
   useEffect(() => {
     if (isSelectableDate(paramDate) && paramDate !== date) setDate(paramDate);
   }, [paramDate, date]);
@@ -116,12 +126,12 @@ export function HealthEntryPage() {
     const merged = mergeData(entry?.data);
     setOpenMap((prev) => {
       const next = { ...prev };
-      for (const c of CATEGORIES) {
+      for (const c of categories) {
         if (next[c.id] === undefined && categoryStatus(merged, c).filled) next[c.id] = true;
       }
       return next;
     });
-  }, [loadStatus, entry, date]);
+  }, [loadStatus, entry, date, categories]);
 
   const setOpen = (id, value) => {
     setOpenMap((prev) => (prev[id] === value ? prev : { ...prev, [id]: value }));
@@ -131,7 +141,7 @@ export function HealthEntryPage() {
   const setAll = (value) => {
     setOpenMap(() => {
       const next = {};
-      for (const c of CATEGORIES) {
+      for (const c of categories) {
         next[c.id] = value;
         persistOpen(c.id, value);
       }
@@ -197,7 +207,7 @@ export function HealthEntryPage() {
         </div>
 
         <div className="grid gap-2 sm:grid-cols-2">
-          {CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <CategoryCard
               key={category.id}
               category={category}

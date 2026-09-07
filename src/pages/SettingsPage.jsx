@@ -15,6 +15,7 @@ import {
   selectMedicationsStatus,
   selectMedicationsError,
 } from '@/features/health/healthSelectors';
+import { CATEGORIES, isFieldHidden } from '@/features/health/healthSchema';
 import { FormField } from '@/components/ui/FormField';
 import { SelectField } from '@/components/ui/SelectField';
 import { Button } from '@/components/ui/Button';
@@ -96,10 +97,23 @@ export function SettingsPage() {
   const [draft, setDraft] = useState({ name: '', dose: '', schedule: '' });
   const [height, setHeight] = useState('');
   const [heightSaved, setHeightSaved] = useState(false);
+  const [hidden, setHidden] = useState([]);
 
   useEffect(() => {
     dispatch(loadMedications());
   }, [dispatch]);
+
+  useEffect(() => {
+    setHidden(profile?.hidden_health_fields ?? []);
+  }, [profile?.hidden_health_fields]);
+
+  const toggleHidden = (token) => {
+    const next = hidden.includes(token)
+      ? hidden.filter((x) => x !== token)
+      : [...hidden, token];
+    setHidden(next);
+    dispatch(updateMyProfile({ hidden_health_fields: next }));
+  };
 
   useEffect(() => {
     setHeight(profile?.default_height_cm != null ? String(profile.default_height_cm) : '');
@@ -175,6 +189,52 @@ export function SettingsPage() {
             {t('settings.medAdd')}
           </Button>
         </form>
+      </div>
+
+      <div className="space-y-3 rounded-xl border border-border bg-surface p-4">
+        <h2 className="text-lg font-semibold text-content">{t('settings.fields')}</h2>
+        <p className="text-sm text-content-muted">{t('settings.fieldsHint')}</p>
+
+        <div className="space-y-1.5">
+          {CATEGORIES.map((cat) => {
+            const catHidden = hidden.includes(cat.id);
+            return (
+              <details key={cat.id} className="rounded-lg border border-border">
+                <summary className="flex cursor-pointer list-none items-center gap-2 px-2 py-1.5 text-sm font-medium text-content [&::-webkit-details-marker]:hidden">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-border text-brand-600 focus:ring-brand-500/30"
+                    checked={!catHidden}
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={() => toggleHidden(cat.id)}
+                  />
+                  <span aria-hidden="true">{cat.icon}</span>
+                  <span className="flex-1">{t(`health.categories.${cat.id}`)}</span>
+                  <span className="text-content-subtle">▾</span>
+                </summary>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 border-t border-border px-3 py-2">
+                  {cat.fields.map((f) => (
+                    <label
+                      key={f.key}
+                      className={`flex items-center gap-1.5 text-sm text-content ${
+                        catHidden ? 'opacity-40' : ''
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 rounded border-border text-brand-600 focus:ring-brand-500/30"
+                        disabled={catHidden}
+                        checked={!isFieldHidden(hidden, cat.id, f.key)}
+                        onChange={() => toggleHidden(`${cat.id}.${f.key}`)}
+                      />
+                      {t(`health.fields.${f.key}`)}
+                    </label>
+                  ))}
+                </div>
+              </details>
+            );
+          })}
+        </div>
       </div>
 
       <form onSubmit={saveHeight} className="space-y-3 rounded-xl border border-border bg-surface p-4">

@@ -84,7 +84,8 @@ HealthCalendar/
 │       ├── 0003_profiles_locale.sql ← adds profiles.locale if the table pre-existed
 │       ├── 0004_health_entries_sleep_note.sql ← adds free-text health_entries.sleep_note
 │       ├── 0005_health_entries_data.sql ← adds health_entries.data jsonb (all non-legacy fields)
-│       └── 0006_user_medications.sql ← user_medications table + RLS; profiles.default_height_cm
+│       ├── 0006_user_medications.sql ← user_medications table + RLS; profiles.default_height_cm
+│       └── 0007_profiles_hidden_health_fields.sql ← profiles.hidden_health_fields (hide entry fields)
 ├── index.html
 ├── vite.config.js
 ├── tailwind.config.js
@@ -249,7 +250,7 @@ state.auth = {
   status: 'idle' | 'loading' | 'authenticated' | 'unauthenticated',
   session: null | { access_token, user, ... },
   user:    null | { id, email, email_confirmed_at, ... },
-  profile: null | { username, display_name, locale, default_height_cm },
+  profile: null | { username, display_name, locale, default_height_cm, hidden_health_fields },
   error:   null | { code, message },
 }
 
@@ -313,9 +314,11 @@ src/features/health/
   healthSlice.js         ← entry-form state + calendar state + medications sub-state
   healthSelectors.js     ← the only way pages read health state
   healthConstants.js     ← todayIso(), isIsoDate(), entryToForm/formToValues mappers
-  healthSchema.js        ← CATEGORIES config (the source of truth for the entry form),
+  healthSchema.js        ← CATEGORIES config (the source of truth for the entry form;
+                           a category may carry an explicit `rows` layout, e.g. meals),
                            OPTIONS, defaultData, categoryStatus, computeBmi, mergeData,
-                           deriveLegacyColumns
+                           deriveLegacyColumns, visibleCategories (drops the user's
+                           hidden categories/fields per profiles.hidden_health_fields)
   calendarUtils.js       ← date math, Intl labels, painColor(level)
   components/CategoryCard.jsx  ← one <details> category card; status dot + field count;
                                  open state persisted in localStorage (health.cat.<id>)
@@ -348,6 +351,9 @@ unique (user_id, entry_date)
 (`daily|morning|evening|night|as_needed`), notes, is_active, sort_order. RLS
 `user_id = auth.uid()` on all four verbs, mirroring health_entries.
 `profiles.default_height_cm` prefills the BMI height field.
+`profiles.hidden_health_fields` is a jsonb array of tokens (`"meals"` hides a
+whole category, `"meals.caffeineCups"` hides one field); `/settings` edits it and
+`visibleCategories()` applies it on `/health`.
 
 RLS on health_entries: every policy is `user_id = auth.uid()` (select / insert / update / delete).
 
