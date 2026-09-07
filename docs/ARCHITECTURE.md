@@ -79,8 +79,9 @@ HealthCalendar/
 │   └── ARCHITECTURE.md            ← this file
 ├── supabase/
 │   └── migrations/
-│       ├── 0001_auth_profiles.sql ← profiles table, trigger, RLS, RPCs
-│       └── 0002_health_entries.sql ← daily health_entries table + RLS
+│       ├── 0001_auth_profiles.sql  ← profiles table, trigger, RLS, RPCs
+│       ├── 0002_health_entries.sql ← daily health_entries table + RLS
+│       └── 0003_profiles_locale.sql ← adds profiles.locale if the table pre-existed
 ├── index.html
 ├── vite.config.js
 ├── tailwind.config.js
@@ -374,4 +375,7 @@ Supabase dashboard checklist:
 1. Auth → Providers → Email → enable "Confirm email".
 2. Auth → URL Configuration → add `http://localhost:5173` and your prod URL to
    the redirect allow-list.
-3. Run the migrations (`0001` then `0002`).
+3. Run the migrations in order (`0001`, `0002`, `0003`). `0003` only matters if
+   the project's `profiles` table pre-dates this app (it did on the first
+   deployment — a leftover table without a `locale` column made every profile
+   fetch 400).
