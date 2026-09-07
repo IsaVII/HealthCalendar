@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
@@ -18,6 +19,7 @@ import {
   SLEEP_HOURS_MIN,
   SLEEP_HOURS_MAX,
   todayIso,
+  isIsoDate,
   entryToForm,
   formToValues,
 } from '@/features/health/healthConstants';
@@ -33,8 +35,19 @@ export function HealthEntryPage() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
-  const [date, setDate] = useState(todayIso);
+  // The day in view can be linked to from the calendar as ?date=YYYY-MM-DD.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const paramDate = searchParams.get('date');
+  const [date, setDate] = useState(() =>
+    paramDate && isIsoDate(paramDate) ? paramDate : todayIso(),
+  );
   const [form, setForm] = useState(EMPTY_FORM);
+
+  function changeDate(next) {
+    const value = isIsoDate(next) ? next : todayIso();
+    setDate(value);
+    setSearchParams(value === todayIso() ? {} : { date: value }, { replace: true });
+  }
 
   const entry = useAppSelector(selectHealthEntry);
   const loadStatus = useAppSelector(selectHealthLoadStatus);
@@ -43,7 +56,13 @@ export function HealthEntryPage() {
   const error = useAppSelector(selectHealthError);
   const hasEntry = useAppSelector(selectHasEntry);
 
-  // Auto-load whenever the selected date changes (on mount it's today).
+  // Follow the ?date= param when the page is already mounted (e.g. a second
+  // click from the calendar).
+  useEffect(() => {
+    if (paramDate && isIsoDate(paramDate) && paramDate !== date) setDate(paramDate);
+  }, [paramDate, date]);
+
+  // Auto-load whenever the selected date changes (on mount it's today or ?date=).
   useEffect(() => {
     dispatch(loadEntryForDate(date));
   }, [dispatch, date]);
@@ -82,7 +101,7 @@ export function HealthEntryPage() {
           name="entry_date"
           max={todayIso()}
           value={date}
-          onChange={(e) => setDate(e.target.value || todayIso())}
+          onChange={(e) => changeDate(e.target.value)}
         />
 
         <FormField

@@ -11,6 +11,7 @@ import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
 import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { HealthEntryPage } from '@/pages/HealthEntryPage';
+import { CalendarPage } from '@/pages/CalendarPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 export function AppRouter() {
@@ -33,6 +34,7 @@ export function AppRouter() {
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/health" element={<HealthEntryPage />} />
+            <Route path="/calendar" element={<CalendarPage />} />
           </Route>
         </Route>
 

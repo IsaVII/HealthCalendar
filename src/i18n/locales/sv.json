@@ -12,6 +12,7 @@
   },
   "nav": {
     "dashboard": "Översikt",
+    "calendar": "Kalender",
     "health": "Hälsa",
     "logout": "Logga ut"
   },
@@ -85,6 +86,19 @@
     "existingNote": "Du har redan loggat den här dagen. Om du sparar uppdateras den.",
     "loadError": "Kunde inte ladda dagens post.",
     "saveError": "Kunde inte spara. Försök igen."
+  },
+  "calendar": {
+    "title": "Kalender",
+    "month": "Månad",
+    "year": "År",
+    "today": "Idag",
+    "prevPeriod": "Föregående",
+    "nextPeriod": "Nästa",
+    "legendPain": "Smärtnivå",
+    "legendEntry": "Loggad, utan smärtvärde",
+    "dayPain": "Smärta {{level}}",
+    "dayLogged": "Post registrerad",
+    "loadError": "Kunde inte ladda poster för perioden."
   },
   "notFound": {
     "title": "Sidan hittades inte",

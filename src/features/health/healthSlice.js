@@ -1,9 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import { loadEntryForDate, saveEntryForDate } from './healthThunks';
+import { loadEntryForDate, saveEntryForDate, loadEntriesInRange } from './healthThunks';
+import { todayIso } from './healthConstants';
 
 /**
- * One day in view at a time.
+ * Two concerns in one slice:
+ *
+ *  - the single day open in the entry form (`date`, `entry`, `loadStatus`, …)
+ *  - the calendar overview (`calendarView`, `calendarCursor`, `entriesByDate`)
  *
  * loadStatus:
  *   'idle'    – nothing requested yet
@@ -12,13 +16,27 @@ import { loadEntryForDate, saveEntryForDate } from './healthThunks';
  *   'error'   – the fetch failed; see `error`
  */
 const initialState = {
+  // --- entry form ---------------------------------------------------------
   date: null,
   entry: null,
   loadStatus: 'idle',
   saving: false,
   savedAt: null, // timestamp of the last successful save, for a transient notice
   error: null, // { message } from the last failed load or save
+
+  // --- calendar overview -------------------------------------------------
+  calendarView: 'month', // 'month' | 'year'
+  calendarCursor: todayIso(), // any day inside the period in view
+  entriesByDate: {}, // 'YYYY-MM-DD' -> { pain_level, sleep_hours, sleep_quality }
+  rangeStatus: 'idle', // 'idle' | 'loading' | 'ready' | 'error'
+  rangeError: null,
 };
+
+function indexByDate(entries) {
+  const map = {};
+  for (const row of entries) map[row.entry_date] = row;
+  return map;
+}
 
 const healthSlice = createSlice({
   name: 'health',
@@ -29,6 +47,12 @@ const healthSlice = createSlice({
     },
     clearSavedFlag(state) {
       state.savedAt = null;
+    },
+    setCalendarView(state, action) {
+      state.calendarView = action.payload;
+    },
+    setCalendarCursor(state, action) {
+      state.calendarCursor = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -60,14 +84,29 @@ const healthSlice = createSlice({
         if (action.payload.date === state.date) {
           state.entry = action.payload.entry;
         }
+        // Keep any calendar view already in memory consistent.
+        state.entriesByDate[action.payload.date] = action.payload.entry;
       })
       .addCase(saveEntryForDate.rejected, (state, action) => {
         state.saving = false;
         state.error = action.payload ?? { message: 'Error' };
+      })
+      .addCase(loadEntriesInRange.pending, (state) => {
+        state.rangeStatus = 'loading';
+        state.rangeError = null;
+      })
+      .addCase(loadEntriesInRange.fulfilled, (state, action) => {
+        state.entriesByDate = indexByDate(action.payload.entries);
+        state.rangeStatus = 'ready';
+      })
+      .addCase(loadEntriesInRange.rejected, (state, action) => {
+        state.rangeStatus = 'error';
+        state.rangeError = action.payload ?? { message: 'Error' };
       });
   },
 });
 
-export { loadEntryForDate, saveEntryForDate };
-export const { clearHealthError, clearSavedFlag } = healthSlice.actions;
+export { loadEntryForDate, saveEntryForDate, loadEntriesInRange };
+export const { clearHealthError, clearSavedFlag, setCalendarView, setCalendarCursor } =
+  healthSlice.actions;
 export default healthSlice.reducer;

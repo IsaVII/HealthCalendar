@@ -12,6 +12,7 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "calendar": "Calendar",
     "health": "Health",
     "logout": "Log out"
   },
@@ -85,6 +86,19 @@
     "existingNote": "You already logged this day. Saving will update it.",
     "loadError": "Couldn't load this day's entry.",
     "saveError": "Couldn't save. Please try again."
+  },
+  "calendar": {
+    "title": "Calendar",
+    "month": "Month",
+    "year": "Year",
+    "today": "Today",
+    "prevPeriod": "Previous",
+    "nextPeriod": "Next",
+    "legendPain": "Pain level",
+    "legendEntry": "Logged, no pain value",
+    "dayPain": "Pain {{level}}",
+    "dayLogged": "Entry logged",
+    "loadError": "Couldn't load entries for this period."
   },
   "notFound": {
     "title": "Page not found",

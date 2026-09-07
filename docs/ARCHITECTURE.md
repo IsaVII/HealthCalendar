@@ -2,8 +2,9 @@
 
 > Status: **foundation + first health feature**. This document describes the target
 > architecture and what exists today: a multi-language, mobile-friendly web app
-> with Supabase-backed auth (register / verify email / log in / log out) and a
-> daily health-data entry page (`/health`) — see section 8.
+> with Supabase-backed auth (register / verify email / log in / log out), a
+> daily health-data entry page (`/health`) and a month/year calendar overview
+> (`/calendar`) — see section 8.
 
 ---
 
@@ -115,6 +116,7 @@ HealthCalendar/
     │   ├── ResetPasswordPage.jsx
     │   ├── DashboardPage.jsx      ← placeholder, no health data
     │   ├── HealthEntryPage.jsx    ← daily health-data form (/health)
+    │   ├── CalendarPage.jsx       ← month/year overview (/calendar)
     │   └── NotFoundPage.jsx
     └── features/
         ├── auth/
@@ -125,11 +127,13 @@ HealthCalendar/
         │   ├── authSelectors.js   ← memo-friendly selectors
         │   └── AuthProvider.jsx   ← subscribes to Supabase auth changes
         └── health/
-            ├── HealthService.js   ← class: getEntryByDate / saveEntry (upsert)
-            ├── healthSlice.js     ← day in view + load/save status
-            ├── healthThunks.js    ← loadEntryForDate / saveEntryForDate
+            ├── HealthService.js   ← class: getEntryByDate / listEntries / saveEntry (upsert)
+            ├── healthSlice.js     ← day in view + calendar overview state
+            ├── healthThunks.js    ← loadEntryForDate / loadEntriesInRange / saveEntryForDate
             ├── healthSelectors.js ← memo-friendly selectors
-            └── healthConstants.js ← enums, ranges, entry⇄form mappers
+            ├── healthConstants.js ← enums, ranges, todayIso(), entry⇄form mappers
+            ├── calendarUtils.js   ← pure date math + pain→colour scale
+            └── components/        ← MonthGrid, YearGrid
 ```
 
 ---
@@ -244,6 +248,16 @@ state.auth = {
   profile: null | { username, display_name, locale },
   error:   null | { code, message },
 }
+
+state.health = {
+  // entry form
+  date, entry, loadStatus, saving, savedAt, error,
+  // calendar overview
+  calendarView: 'month' | 'year',
+  calendarCursor: 'YYYY-MM-DD',
+  entriesByDate: { 'YYYY-MM-DD': { pain_level, sleep_hours, sleep_quality } },
+  rangeStatus, rangeError,
+}
 ```
 
 - **Thunks** (`createAsyncThunk`) own all async work: `registerUser`,
@@ -275,19 +289,25 @@ its reducer in `src/app/store.js`.
 
 ---
 
-## 8. Health data (first feature — built)
+## 8. Health data (built)
 
-A single page, `/health`, where a signed-in user records one entry per day.
+Two pages so far: `/health` records one entry per day; `/calendar` shows those
+entries across a month or a year.
 
 ```
 src/features/health/
-  HealthService.js      ← getEntryByDate(date) / saveEntry(date, values); upsert via supabase-js
-  healthThunks.js       ← loadEntryForDate, saveEntryForDate
-  healthSlice.js        ← { date, entry, loadStatus, saving, savedAt, error }
-  healthSelectors.js    ← the only way the page reads health state
-  healthConstants.js    ← SLEEP_QUALITY_VALUES, ranges, todayIso(), entry⇄form mappers
+  HealthService.js      ← getEntryByDate(date) / listEntries(from,to) / saveEntry(date,values)
+  healthThunks.js       ← loadEntryForDate, loadEntriesInRange, saveEntryForDate
+  healthSlice.js        ← entry-form state + calendar state (view/cursor/entriesByDate)
+  healthSelectors.js    ← the only way pages read health state
+  healthConstants.js    ← SLEEP_QUALITY_VALUES, ranges, todayIso(), isIsoDate(), mappers
+  calendarUtils.js      ← parseIso/toIso, addMonths/addYears, monthMatrix, rangeForView,
+                          Intl weekday/month labels, painColor(level)
+  components/MonthGrid.jsx  ← one month as a 7-col grid (full or compact)
+  components/YearGrid.jsx   ← 12 compact MonthGrids; click a tile → month view
 
-src/pages/HealthEntryPage.jsx        ← the form
+src/pages/HealthEntryPage.jsx        ← the form; reads/writes ?date=YYYY-MM-DD
+src/pages/CalendarPage.jsx           ← header (view toggle, prev/next, today) + grid
 src/components/ui/SelectField.jsx    ← <select> sibling of FormField
 supabase/migrations/0002_health_entries.sql
 ```
@@ -307,14 +327,24 @@ unique (user_id, entry_date)
 
 RLS: every policy is `user_id = auth.uid()` (select / insert / update / delete).
 
-**Flow:** the page defaults `entry_date` to today. `loadEntryForDate` fetches the
-row for the selected date; if one exists the form is pre-filled, otherwise it is
-blank. `saveEntryForDate` upserts on `(user_id, entry_date)`, so re-saving a day
-edits its row rather than creating a duplicate. Changing the date input reloads.
+**Entry flow (`/health`):** the page defaults `entry_date` to today (or `?date=`
+from a calendar click). `loadEntryForDate` fetches the row for that date; if one
+exists the form is pre-filled, otherwise it is blank. `saveEntryForDate` upserts
+on `(user_id, entry_date)`, so re-saving a day edits its row rather than creating
+a duplicate. Changing the date input reloads and updates the URL.
 
-No existing file was restructured to add this — that is the point of the layering
-in section 3. Adding the next feature (calendar overview, ranges, more metrics)
-follows the same file set.
+**Calendar flow (`/calendar`):** `calendarView` (`'month'|'year'`) and
+`calendarCursor` (any day inside the visible period) live in the slice.
+`rangeForView` turns them into a `[from, to]`; `loadEntriesInRange` fetches that
+window into `entriesByDate` (a `date → row` map). Each day cell is coloured by
+`painColor(pain_level)` (green → red), or neutral when logged without a pain
+value. Month/weekday names come from `Intl.DateTimeFormat` keyed on the active
+i18n language, not the locale JSON. Clicking a day opens `/health?date=…`;
+clicking a month tile in year view drops into that month.
+
+Adding the next feature (trends, more metrics) follows the same file set — no
+existing file needs restructuring, which is the point of the layering in
+section 3.
 
 ---
 

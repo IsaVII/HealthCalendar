@@ -15,6 +15,7 @@ export function AppLayout() {
 
   const navItems = [
     { to: '/dashboard', label: t('nav.dashboard') },
+    { to: '/calendar', label: t('nav.calendar') },
     { to: '/health', label: t('nav.health') },
   ];
 

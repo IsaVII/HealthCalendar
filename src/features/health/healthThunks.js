@@ -20,6 +20,19 @@ export const loadEntryForDate = createAsyncThunk(
   },
 );
 
+/** Load every entry in a `[from, to]` date range for the calendar overview. */
+export const loadEntriesInRange = createAsyncThunk(
+  'health/loadEntriesInRange',
+  async ({ from, to }, thunkApi) => {
+    try {
+      const entries = await healthService.listEntries(from, to);
+      return { from, to, entries };
+    } catch (err) {
+      return thunkApi.rejectWithValue(toErrorPayload(err));
+    }
+  },
+);
+
 /** Create or update the entry for `date`. */
 export const saveEntryForDate = createAsyncThunk(
   'health/saveEntryForDate',

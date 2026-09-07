@@ -19,6 +19,16 @@ export function todayIso() {
   return local.toISOString().slice(0, 10);
 }
 
+/** True for a well-formed `YYYY-MM-DD` string that names a real calendar day. */
+export function isIsoDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [y, m, d] = value.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  return (
+    date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d
+  );
+}
+
 /** DB row -> form state (all fields are strings the inputs can bind to). */
 export function entryToForm(entry) {
   return {

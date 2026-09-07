@@ -30,6 +30,21 @@ export class HealthService {
   }
 
   /**
+   * The current user's entries between two `YYYY-MM-DD` dates (inclusive),
+   * oldest first. Used by the calendar overview.
+   */
+  async listEntries(fromDate, toDate) {
+    const { data, error } = await this.client
+      .from('health_entries')
+      .select('entry_date, pain_level, sleep_hours, sleep_quality')
+      .gte('entry_date', fromDate)
+      .lte('entry_date', toDate)
+      .order('entry_date', { ascending: true });
+    if (error) throw error;
+    return data ?? [];
+  }
+
+  /**
    * Insert or update the current user's entry for `date`. Upserts on the
    * (user_id, entry_date) unique constraint, so calling it twice for the same
    * day edits the existing row rather than failing.
