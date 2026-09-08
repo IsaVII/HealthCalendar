@@ -4,6 +4,7 @@ import { createSelector } from '@reduxjs/toolkit';
 
 export const selectHealthDate = (state) => state.health.date;
 export const selectHealthEntry = (state) => state.health.entry;
+export const selectHealthPrevEntry = (state) => state.health.prevEntry;
 export const selectHealthLoadStatus = (state) => state.health.loadStatus;
 export const selectHealthSaving = (state) => state.health.saving;
 export const selectHealthSavedAt = (state) => state.health.savedAt;

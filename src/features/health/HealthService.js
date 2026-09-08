@@ -42,6 +42,24 @@ export class HealthService {
   }
 
   /**
+   * The current user's most recent entry strictly before `date`, or null. Used
+   * to prefill "same as yesterday" fields (weight, height) on a fresh day.
+   */
+  async getEntryBefore(date) {
+    const userId = await this.requireUserId();
+    const { data, error } = await this.client
+      .from('health_entries')
+      .select(COLUMNS)
+      .eq('user_id', userId)
+      .lt('entry_date', date)
+      .order('entry_date', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) throw error;
+    return data ?? null;
+  }
+
+  /**
    * The current user's entries between two `YYYY-MM-DD` dates (inclusive),
    * oldest first. Used by the calendar overview.
    */

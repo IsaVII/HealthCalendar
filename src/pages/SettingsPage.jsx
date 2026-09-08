@@ -16,6 +16,14 @@ import {
   selectMedicationsError,
 } from '@/features/health/healthSelectors';
 import { CATEGORIES, isFieldHidden } from '@/features/health/healthSchema';
+import { selectUnitSystem } from '@/features/auth/authSelectors';
+import {
+  UNIT_SYSTEMS,
+  unitConfig,
+  toDisplayValue,
+  toStoredValue,
+  toDisplayBound,
+} from '@/features/health/units';
 import { FormField } from '@/components/ui/FormField';
 import { SelectField } from '@/components/ui/SelectField';
 import { Button } from '@/components/ui/Button';
@@ -93,6 +101,8 @@ export function SettingsPage() {
   const medsStatus = useAppSelector(selectMedicationsStatus);
   const medsError = useAppSelector(selectMedicationsError);
   const profile = useAppSelector(selectAuthProfile);
+  const unitSystem = useAppSelector(selectUnitSystem);
+  const heightUnit = unitConfig('length', unitSystem);
 
   const [draft, setDraft] = useState({ name: '', dose: '', schedule: '' });
   const [height, setHeight] = useState('');
@@ -116,8 +126,12 @@ export function SettingsPage() {
   };
 
   useEffect(() => {
-    setHeight(profile?.default_height_cm != null ? String(profile.default_height_cm) : '');
-  }, [profile?.default_height_cm]);
+    setHeight(
+      profile?.default_height_cm != null
+        ? toDisplayValue('length', unitSystem, profile.default_height_cm)
+        : '',
+    );
+  }, [profile?.default_height_cm, unitSystem]);
 
   async function handleAdd(e) {
     e.preventDefault();
@@ -128,10 +142,14 @@ export function SettingsPage() {
 
   async function saveHeight(e) {
     e.preventDefault();
-    const value = height === '' ? null : Number(height);
+    const value = height === '' ? null : Number(toStoredValue('length', unitSystem, height));
     await dispatch(updateMyProfile({ default_height_cm: value }));
     setHeightSaved(true);
     setTimeout(() => setHeightSaved(false), 2500);
+  }
+
+  function setUnitSystem(next) {
+    if (next !== unitSystem) dispatch(updateMyProfile({ unit_system: next }));
   }
 
   return (
@@ -237,6 +255,24 @@ export function SettingsPage() {
         </div>
       </div>
 
+      <div className="space-y-3 rounded-xl border border-border bg-surface p-4">
+        <h2 className="text-lg font-semibold text-content">{t('settings.units')}</h2>
+        <p className="text-sm text-content-muted">{t('settings.unitsHint')}</p>
+        <SelectField
+          dense
+          className="w-56"
+          label={t('settings.unitSystem')}
+          value={unitSystem}
+          onChange={(e) => setUnitSystem(e.target.value)}
+        >
+          {UNIT_SYSTEMS.map((s) => (
+            <option key={s} value={s}>
+              {t(`settings.unitSystems.${s}`)}
+            </option>
+          ))}
+        </SelectField>
+      </div>
+
       <form onSubmit={saveHeight} className="space-y-3 rounded-xl border border-border bg-surface p-4">
         <h2 className="text-lg font-semibold text-content">{t('settings.body')}</h2>
         {heightSaved && <Alert tone="success">{t('settings.saved')}</Alert>}
@@ -246,10 +282,10 @@ export function SettingsPage() {
             className="w-40"
             type="number"
             inputMode="decimal"
-            min={30}
-            max={260}
-            step={0.5}
-            label={t('settings.defaultHeight')}
+            min={toDisplayBound('length', unitSystem, 30)}
+            max={toDisplayBound('length', unitSystem, 260)}
+            step={heightUnit.step}
+            label={`${t('settings.defaultHeight')} (${heightUnit.unit})`}
             value={height}
             onChange={(e) => setHeight(e.target.value)}
           />

@@ -7,6 +7,10 @@ export const selectAuthProfile = (state) => state.auth.profile;
 export const selectAuthError = (state) => state.auth.error;
 export const selectAuthPending = (state) => state.auth.pending;
 
+/** Measurement system for the daily entry form: 'metric' | 'imperial'. */
+export const selectUnitSystem = (state) =>
+  state.auth.profile?.unit_system === 'imperial' ? 'imperial' : 'metric';
+
 export const selectIsInitializing = (state) => state.auth.status === 'initializing';
 export const selectIsAuthenticated = (state) => state.auth.status === 'authenticated';
 export const selectIsUnverified = (state) => state.auth.status === 'unverified';

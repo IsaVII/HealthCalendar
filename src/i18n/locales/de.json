@@ -184,7 +184,8 @@
       "done": "Heute erledigt",
       "noMedications": "Noch keine regelmäßigen Medikamente.",
       "manageMedications": "In den Einstellungen hinzufügen",
-      "takenTime": "Uhrzeit der Einnahme"
+      "takenTime": "Uhrzeit der Einnahme",
+      "otherDrinks": "Andere Getränke"
     },
     "options": {
       "portion": { "light": "Klein", "normal": "Normal", "large": "Groß" },
@@ -317,7 +318,11 @@
     "fields": "Felder im Tageseintrag",
     "fieldsHint": "Entferne den Haken bei allem, was du nicht erfassen willst — es erscheint dann nicht im Tageseintrag.",
     "body": "Körper",
-    "defaultHeight": "Standardgröße (cm)",
+    "defaultHeight": "Standardgröße",
+    "units": "Einheiten",
+    "unitsHint": "Lege fest, wie Maße im Tageseintrag eingegeben und angezeigt werden.",
+    "unitSystem": "Maßsystem",
+    "unitSystems": { "metric": "Metrisch (kg, cm, °C)", "imperial": "Imperial (lb, in, °F)" },
     "saved": "Gespeichert."
   },
   "calendar": {

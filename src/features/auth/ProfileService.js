@@ -25,7 +25,7 @@ export class ProfileService {
     const { data, error } = await this.client
       .from('profiles')
       .select(
-        'id, username, display_name, locale, default_height_cm, hidden_health_fields, created_at',
+        'id, username, display_name, locale, default_height_cm, hidden_health_fields, unit_system, created_at',
       )
       .eq('id', userId)
       .maybeSingle();
@@ -41,7 +41,9 @@ export class ProfileService {
       .from('profiles')
       .update({ ...patch, updated_at: new Date().toISOString() })
       .eq('id', userId)
-      .select('id, username, display_name, locale, default_height_cm, hidden_health_fields')
+      .select(
+        'id, username, display_name, locale, default_height_cm, hidden_health_fields, unit_system',
+      )
       .single();
     if (error) throw AuthError.from(error);
     return data;

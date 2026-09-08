@@ -20,6 +20,19 @@ export const loadEntryForDate = createAsyncThunk(
   },
 );
 
+/** Load the most recent entry before `date` (for "same as yesterday" prefills). */
+export const loadEntryBefore = createAsyncThunk(
+  'health/loadEntryBefore',
+  async (date, thunkApi) => {
+    try {
+      const entry = await healthService.getEntryBefore(date);
+      return { date, entry };
+    } catch (err) {
+      return thunkApi.rejectWithValue(toErrorPayload(err));
+    }
+  },
+);
+
 /** Load every entry in a `[from, to]` date range for the calendar overview. */
 export const loadEntriesInRange = createAsyncThunk(
   'health/loadEntriesInRange',

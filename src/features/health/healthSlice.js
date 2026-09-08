@@ -1,6 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import { loadEntryForDate, saveEntryForDate, loadEntriesInRange } from './healthThunks';
+import {
+  loadEntryForDate,
+  loadEntryBefore,
+  saveEntryForDate,
+  loadEntriesInRange,
+} from './healthThunks';
 import {
   loadMedications,
   addMedication,
@@ -25,6 +30,7 @@ const initialState = {
   // --- entry form ---------------------------------------------------------
   date: null,
   entry: null,
+  prevEntry: null, // most recent entry before `date`, for "same as yesterday" prefills
   loadStatus: 'idle',
   saving: false,
   savedAt: null, // timestamp of the last successful save, for a transient notice
@@ -77,6 +83,13 @@ const healthSlice = createSlice({
         if (action.payload.date !== state.date) return;
         state.entry = action.payload.entry;
         state.loadStatus = 'ready';
+      })
+      .addCase(loadEntryBefore.pending, (state) => {
+        state.prevEntry = null;
+      })
+      .addCase(loadEntryBefore.fulfilled, (state, action) => {
+        if (action.payload.date !== state.date) return;
+        state.prevEntry = action.payload.entry;
       })
       .addCase(loadEntryForDate.rejected, (state, action) => {
         state.loadStatus = 'error';
@@ -139,7 +152,7 @@ const healthSlice = createSlice({
   },
 });
 
-export { loadEntryForDate, saveEntryForDate, loadEntriesInRange };
+export { loadEntryForDate, loadEntryBefore, saveEntryForDate, loadEntriesInRange };
 export { loadMedications, addMedication, updateMedication, removeMedication };
 export const { clearHealthError, clearSavedFlag, setCalendarView, setCalendarCursor } =
   healthSlice.actions;

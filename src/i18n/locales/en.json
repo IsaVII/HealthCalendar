@@ -184,7 +184,8 @@
       "done": "Completed today",
       "noMedications": "No regular medications yet.",
       "manageMedications": "Add some in Settings",
-      "takenTime": "Time taken"
+      "takenTime": "Time taken",
+      "otherDrinks": "Other drinks"
     },
     "options": {
       "portion": { "light": "Light", "normal": "Normal", "large": "Large" },
@@ -317,7 +318,11 @@
     "fields": "Daily entry fields",
     "fieldsHint": "Untick anything you don't want to track — it won't appear on the daily entry.",
     "body": "Body",
-    "defaultHeight": "Default height (cm)",
+    "defaultHeight": "Default height",
+    "units": "Units",
+    "unitsHint": "Choose how measurements are entered and shown across the daily entry.",
+    "unitSystem": "Measurement system",
+    "unitSystems": { "metric": "Metric (kg, cm, °C)", "imperial": "Imperial (lb, in, °F)" },
     "saved": "Saved."
   },
   "calendar": {

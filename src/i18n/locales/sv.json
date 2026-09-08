@@ -184,7 +184,8 @@
       "done": "Genomfört idag",
       "noMedications": "Inga regelbundna mediciner än.",
       "manageMedications": "Lägg till i Inställningar",
-      "takenTime": "Tid det togs"
+      "takenTime": "Tid det togs",
+      "otherDrinks": "Andra drycker"
     },
     "options": {
       "portion": { "light": "Lätt", "normal": "Normal", "large": "Stor" },
@@ -317,7 +318,11 @@
     "fields": "Fält i dagsposten",
     "fieldsHint": "Avmarkera det du inte vill spåra — det visas då inte i dagsposten.",
     "body": "Kropp",
-    "defaultHeight": "Standardlängd (cm)",
+    "defaultHeight": "Standardlängd",
+    "units": "Enheter",
+    "unitsHint": "Välj hur mått anges och visas i hela dagsposten.",
+    "unitSystem": "Måttsystem",
+    "unitSystems": { "metric": "Metriskt (kg, cm, °C)", "imperial": "Imperialt (lb, tum, °F)" },
     "saved": "Sparat."
   },
   "calendar": {

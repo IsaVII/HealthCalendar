@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useAppSelector } from '@/app/hooks';
@@ -6,6 +7,58 @@ import { FormField } from '@/components/ui/FormField';
 import { SelectField } from '@/components/ui/SelectField';
 import { OPTIONS, PAIN_OPTION_VALUES, computeBmi } from '@/features/health/healthSchema';
 import { selectActiveMedications } from '@/features/health/healthSelectors';
+import { selectUnitSystem } from '@/features/auth/authSelectors';
+import {
+  unitConfig,
+  toDisplayValue,
+  toStoredValue,
+  toDisplayBound,
+} from '@/features/health/units';
+
+/**
+ * A number field whose stored value is always metric but which is entered and
+ * shown in the user's chosen system. Keeps its own input text so a half-typed
+ * "36." isn't rewritten mid-keystroke; re-syncs when the day changes or the
+ * unit system flips.
+ */
+function ConvertedNumberField({ field, value, onChange, label, system }) {
+  const cfg = unitConfig(field.convert, system);
+  const [text, setText] = useState(() => toDisplayValue(field.convert, system, value));
+  const stored = useRef(value);
+
+  useEffect(() => {
+    if (String(value) !== String(stored.current)) {
+      stored.current = value;
+      setText(toDisplayValue(field.convert, system, value));
+    }
+  }, [value, field.convert, system]);
+
+  useEffect(() => {
+    setText(toDisplayValue(field.convert, system, stored.current));
+  }, [system, field.convert]);
+
+  const handleChange = (e) => {
+    const next = e.target.value;
+    setText(next);
+    const asMetric = toStoredValue(field.convert, system, next);
+    stored.current = asMetric;
+    onChange(asMetric);
+  };
+
+  return (
+    <FormField
+      dense
+      type="number"
+      inputMode="decimal"
+      label={`${label} (${cfg.unit})`}
+      min={toDisplayBound(field.convert, system, field.min)}
+      max={toDisplayBound(field.convert, system, field.max)}
+      step={cfg.step}
+      value={text}
+      onChange={handleChange}
+    />
+  );
+}
 
 const textareaClass =
   'block w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-content shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30';
@@ -17,6 +70,7 @@ const textareaClass =
 export function FieldRenderer({ field, value, onChange, data }) {
   const { t } = useTranslation();
   const activeMeds = useAppSelector(selectActiveMedications);
+  const unitSystem = useAppSelector(selectUnitSystem);
 
   const label = t(`health.fields.${field.key}`);
   const withUnit = field.unit ? `${label} (${field.unit})` : label;
@@ -28,6 +82,17 @@ export function FieldRenderer({ field, value, onChange, data }) {
 
   switch (field.type) {
     case 'number':
+      if (field.convert) {
+        return (
+          <ConvertedNumberField
+            field={field}
+            value={value}
+            onChange={onChange}
+            label={label}
+            system={unitSystem}
+          />
+        );
+      }
       return (
         <FormField
           dense

@@ -6,11 +6,13 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { selectAuthProfile } from '@/features/auth/authSelectors';
 import {
   loadEntryForDate,
+  loadEntryBefore,
   saveEntryForDate,
   loadMedications,
 } from '@/features/health/healthSlice';
 import {
   selectHealthEntry,
+  selectHealthPrevEntry,
   selectHealthLoadStatus,
   selectHealthSaving,
   selectHealthSavedAt,
@@ -83,6 +85,7 @@ export function HealthEntryPage() {
   }
 
   const entry = useAppSelector(selectHealthEntry);
+  const prevEntry = useAppSelector(selectHealthPrevEntry);
   const loadStatus = useAppSelector(selectHealthLoadStatus);
   const saving = useAppSelector(selectHealthSaving);
   const savedAt = useAppSelector(selectHealthSavedAt);
@@ -105,18 +108,35 @@ export function HealthEntryPage() {
 
   useEffect(() => {
     dispatch(loadEntryForDate(date));
+    dispatch(loadEntryBefore(date));
   }, [dispatch, date]);
 
-  // Mirror the loaded entry into the form; prefill the BMI height from the
-  // profile default when the day has none of its own.
+  // Mirror the loaded entry into the form.
   useEffect(() => {
     if (loadStatus !== 'ready') return;
-    const next = entry ? entryToForm(entry) : { data: mergeData(null) };
-    if (!next.data.body.heightCm && profile?.default_height_cm != null) {
-      next.data.body.heightCm = String(profile.default_height_cm);
-    }
-    setForm(next);
-  }, [entry, loadStatus, profile]);
+    setForm(entry ? entryToForm(entry) : { data: mergeData(null) });
+  }, [entry, loadStatus]);
+
+  // For a day with no weight / height of its own, carry them over from the most
+  // recent earlier entry (height falls back to the profile default). Only fills
+  // blanks, so it never clobbers something already typed or a late prev-entry.
+  useEffect(() => {
+    if (loadStatus !== 'ready') return;
+    const prev = mergeData(prevEntry?.data).body;
+    setForm((f) => {
+      const b = f.data.body;
+      const weightKg = b.weightKg || (prev.weightKg ? String(prev.weightKg) : '');
+      const heightCm =
+        b.heightCm ||
+        (prev.heightCm
+          ? String(prev.heightCm)
+          : profile?.default_height_cm != null
+            ? String(profile.default_height_cm)
+            : '');
+      if (weightKg === b.weightKg && heightCm === b.heightCm) return f;
+      return { ...f, data: { ...f.data, body: { ...b, weightKg, heightCm } } };
+    });
+  }, [prevEntry, entry, loadStatus, profile]);
 
   // Once per loaded day, open any category that has data and has no explicit
   // saved preference; leave the rest as the user (or storage) left them.
