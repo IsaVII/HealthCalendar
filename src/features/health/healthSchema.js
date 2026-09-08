@@ -48,10 +48,6 @@ export const OPTIONS = {
   pms: ['cramps', 'mood_swings', 'cravings', 'headache', 'bloating', 'tender_breasts'],
   airQuality: ['good', 'moderate', 'poor'],
   posture: ['good', 'mixed', 'poor'],
-  habits: [
-    'smoking', 'alcohol', 'caffeine_after_2pm', 'screen_before_bed',
-    'outdoor_time', 'daylight', 'meditation', 'exercise',
-  ],
 };
 
 export const CATEGORIES = [
@@ -177,6 +173,7 @@ export const CATEGORIES = [
       { key: 'energyAfternoon', type: 'select', optionsKey: 'scale5' },
       { key: 'energyEvening', type: 'select', optionsKey: 'scale5' },
       { key: 'focus', type: 'select', optionsKey: 'scale5' },
+      { key: 'dehydration', type: 'toggle' },
       { key: 'events', type: 'textarea', maxLength: 500 },
     ],
   },
@@ -198,14 +195,12 @@ export const CATEGORIES = [
       { key: 'weather', type: 'weather' },
       { key: 'pressure', type: 'number', min: 870, max: 1085, step: 1, unit: 'hPa' },
       { key: 'airQuality', type: 'select', optionsKey: 'airQuality' },
-      { key: 'screenHours', type: 'number', min: 0, max: 24, step: 0.5, unit: 'h' },
       { key: 'eyeStrain', type: 'toggle' },
       { key: 'posture', type: 'select', optionsKey: 'posture' },
       { key: 'travel', type: 'toggle' },
       { key: 'strongSmell', type: 'toggle' },
       { key: 'loudNoise', type: 'toggle' },
       { key: 'brightLight', type: 'toggle' },
-      { key: 'dehydration', type: 'toggle' },
     ],
   },
   {
@@ -222,7 +217,7 @@ export const CATEGORIES = [
   {
     id: 'habits',
     icon: '✅',
-    fields: [{ key: 'done', type: 'multi', optionsKey: 'habits' }],
+    fields: [{ key: 'done', type: 'habits' }],
   },
 ];
 
@@ -259,7 +254,13 @@ export function defaultData() {
     out[category.id] = {};
     for (const field of category.fields) {
       out[category.id][field.key] =
-        field.type === 'multi' ? [] : field.type === 'meds' ? {} : field.type === 'toggle' ? false : '';
+        field.type === 'multi' || field.type === 'habits'
+          ? []
+          : field.type === 'meds'
+            ? {}
+            : field.type === 'toggle'
+              ? false
+              : '';
     }
   }
   return out;
@@ -268,7 +269,9 @@ export function defaultData() {
 /** True when a single field holds something the user actually entered. */
 export function fieldHasValue(field, value) {
   if (field.type === 'bmi') return false; // derived, never counts
-  if (field.type === 'multi') return Array.isArray(value) && value.length > 0;
+  if (field.type === 'multi' || field.type === 'habits') {
+    return Array.isArray(value) && value.length > 0;
+  }
   if (field.type === 'meds') return value && Object.keys(value).length > 0;
   if (field.type === 'toggle') return value === true;
   return value !== '' && value !== null && value !== undefined;

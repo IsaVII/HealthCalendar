@@ -6,7 +6,7 @@ import { useAppSelector } from '@/app/hooks';
 import { FormField } from '@/components/ui/FormField';
 import { SelectField } from '@/components/ui/SelectField';
 import { OPTIONS, PAIN_OPTION_VALUES, computeBmi } from '@/features/health/healthSchema';
-import { selectActiveMedications } from '@/features/health/healthSelectors';
+import { selectActiveMedications, selectActiveHabits } from '@/features/health/healthSelectors';
 import { selectUnitSystem, selectWeatherLocation } from '@/features/auth/authSelectors';
 import {
   unitConfig,
@@ -97,38 +97,37 @@ function WeatherField({ label, value, onChange, onSetSibling }) {
   }
 
   return (
-    <div className="sm:col-span-2">
+    <div className="sm:col-span-2 lg:col-span-3">
       <span className="mb-0.5 block text-xs font-medium text-content">{label}</span>
-      <div className="flex gap-1.5">
-        <input
-          className="min-h-9 min-w-0 flex-1 rounded-lg border border-border bg-surface px-3 text-sm text-content shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30"
-          value={value ?? ''}
-          onChange={(e) => onChange(e.target.value)}
-        />
+      <input
+        className="block min-h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm text-content shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30"
+        value={value ?? ''}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
         {location ? (
           <button
             type="button"
             onClick={getWeather}
             disabled={status === 'loading'}
-            className="shrink-0 rounded-lg border border-border bg-surface px-2.5 text-sm font-medium text-brand-700 transition hover:bg-brand-50 disabled:opacity-60"
+            className="rounded-lg border border-border bg-surface px-2.5 py-1 font-medium text-brand-700 transition hover:bg-brand-50 disabled:opacity-60"
           >
             {status === 'loading' ? t('weather.fetching') : t('weather.getButton')}
           </button>
         ) : (
           <Link
             to="/settings"
-            className="flex shrink-0 items-center rounded-lg border border-dashed border-border px-2.5 text-xs font-medium text-content-muted hover:text-content"
+            className="rounded-lg border border-dashed border-border px-2.5 py-1 font-medium text-content-muted hover:text-content"
           >
             {t('weather.setLocation')}
           </Link>
         )}
+        {status === 'error' ? (
+          <span className="text-red-600">{t('weather.error')}</span>
+        ) : (
+          location?.label && <span className="text-content-subtle">{location.label}</span>
+        )}
       </div>
-      {status === 'error' && (
-        <p className="mt-0.5 text-xs text-red-600">{t('weather.error')}</p>
-      )}
-      {location?.label && status !== 'error' && (
-        <p className="mt-0.5 text-xs text-content-subtle">{location.label}</p>
-      )}
     </div>
   );
 }
@@ -140,6 +139,7 @@ function WeatherField({ label, value, onChange, onSetSibling }) {
 export function FieldRenderer({ field, value, onChange, data, onSetSibling }) {
   const { t } = useTranslation();
   const activeMeds = useAppSelector(selectActiveMedications);
+  const activeHabits = useAppSelector(selectActiveHabits);
   const unitSystem = useAppSelector(selectUnitSystem);
 
   const label = t(`health.fields.${field.key}`);
@@ -334,6 +334,46 @@ export function FieldRenderer({ field, value, onChange, data, onSetSibling }) {
               );
             })}
           </ul>
+        </div>
+      );
+    }
+
+    case 'habits': {
+      const done = Array.isArray(value) ? value : [];
+      if (activeHabits.length === 0) {
+        return (
+          <p className="text-sm text-content-muted sm:col-span-2 lg:col-span-3">
+            {t('health.fields.noHabits')}{' '}
+            <Link to="/settings" className="font-medium text-brand-600 hover:text-brand-700">
+              {t('health.fields.manageHabits')}
+            </Link>
+          </p>
+        );
+      }
+      const toggleHabit = (id) =>
+        onChange(done.includes(id) ? done.filter((x) => x !== id) : [...done, id]);
+      return (
+        <div className="sm:col-span-2 lg:col-span-3">
+          <span className="mb-1 block text-xs font-medium text-content">{label}</span>
+          <div className="flex flex-wrap gap-1.5">
+            {activeHabits.map((habit) => {
+              const on = done.includes(habit.id);
+              return (
+                <button
+                  key={habit.id}
+                  type="button"
+                  onClick={() => toggleHabit(habit.id)}
+                  className={`rounded-full border px-2.5 py-1 text-xs transition ${
+                    on
+                      ? 'border-brand-500 bg-brand-50 text-brand-700'
+                      : 'border-border bg-surface text-content-muted hover:border-brand-500'
+                  }`}
+                >
+                  {habit.name}
+                </button>
+              );
+            })}
+          </div>
         </div>
       );
     }

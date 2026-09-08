@@ -28,3 +28,11 @@ export const selectActiveMedications = createSelector(
   [selectMedications],
   (items) => items.filter((m) => m.is_active),
 );
+
+// --- tracked habits -----------------------------------------------------
+export const selectHabits = (state) => state.health.habits?.items ?? [];
+export const selectHabitsStatus = (state) => state.health.habits?.status ?? 'idle';
+export const selectHabitsError = (state) => state.health.habits?.error ?? null;
+export const selectActiveHabits = createSelector([selectHabits], (items) =>
+  items.filter((h) => h.is_active),
+);

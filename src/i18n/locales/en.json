@@ -169,7 +169,6 @@
       "weather": "Weather",
       "pressure": "Barometric pressure",
       "airQuality": "Air quality / pollen",
-      "screenHours": "Screen time",
       "eyeStrain": "Eye strain",
       "posture": "Posture / ergonomics",
       "travel": "Travel / altitude change",
@@ -185,6 +184,8 @@
       "done": "Completed today",
       "noMedications": "No regular medications yet.",
       "manageMedications": "Add some in Settings",
+      "noHabits": "No habits set up yet.",
+      "manageHabits": "Add some in Settings",
       "takenTime": "Time taken",
       "otherDrinks": "Other drinks"
     },
@@ -284,17 +285,7 @@
         "tender_breasts": "Tender breasts"
       },
       "airQuality": { "good": "Good", "moderate": "Moderate", "poor": "Poor" },
-      "posture": { "good": "Good", "mixed": "Mixed", "poor": "Poor" },
-      "habits": {
-        "smoking": "No smoking / nicotine",
-        "alcohol": "No alcohol",
-        "caffeine_after_2pm": "No caffeine after 2pm",
-        "screen_before_bed": "No screen before bed",
-        "outdoor_time": "Outdoor time",
-        "daylight": "Daylight exposure",
-        "meditation": "Meditation / relaxation",
-        "exercise": "Exercise"
-      }
+      "posture": { "good": "Good", "mixed": "Mixed", "poor": "Poor" }
     }
   },
   "settings": {
@@ -308,6 +299,13 @@
     "medAdd": "Add",
     "medDelete": "Delete",
     "medDeleteConfirm": "Delete \"{{name}}\"?",
+    "habits": "Habits",
+    "habitsHint": "These appear as a checklist on the daily entry's Habits card.",
+    "habitName": "Habit",
+    "habitActive": "Active",
+    "habitAdd": "Add",
+    "habitDelete": "Delete",
+    "habitDeleteConfirm": "Delete \"{{name}}\"?",
     "schedules": {
       "daily": "Daily",
       "morning": "Morning",

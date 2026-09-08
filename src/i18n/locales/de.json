@@ -169,7 +169,6 @@
       "weather": "Wetter",
       "pressure": "Luftdruck",
       "airQuality": "Luftqualität / Pollen",
-      "screenHours": "Bildschirmzeit",
       "eyeStrain": "Überanstrengte Augen",
       "posture": "Haltung / Ergonomie",
       "travel": "Reise / Höhenwechsel",
@@ -185,6 +184,8 @@
       "done": "Heute erledigt",
       "noMedications": "Noch keine regelmäßigen Medikamente.",
       "manageMedications": "In den Einstellungen hinzufügen",
+      "noHabits": "Noch keine Gewohnheiten angelegt.",
+      "manageHabits": "In den Einstellungen hinzufügen",
       "takenTime": "Uhrzeit der Einnahme",
       "otherDrinks": "Andere Getränke"
     },
@@ -284,17 +285,7 @@
         "tender_breasts": "Empfindliche Brüste"
       },
       "airQuality": { "good": "Gut", "moderate": "Mäßig", "poor": "Schlecht" },
-      "posture": { "good": "Gut", "mixed": "Gemischt", "poor": "Schlecht" },
-      "habits": {
-        "smoking": "Kein Rauchen / Nikotin",
-        "alcohol": "Kein Alkohol",
-        "caffeine_after_2pm": "Kein Koffein nach 14 Uhr",
-        "screen_before_bed": "Kein Bildschirm vor dem Schlafen",
-        "outdoor_time": "Zeit im Freien",
-        "daylight": "Tageslicht",
-        "meditation": "Meditation / Entspannung",
-        "exercise": "Bewegung"
-      }
+      "posture": { "good": "Gut", "mixed": "Gemischt", "poor": "Schlecht" }
     }
   },
   "settings": {
@@ -308,6 +299,13 @@
     "medAdd": "Hinzufügen",
     "medDelete": "Löschen",
     "medDeleteConfirm": "\"{{name}}\" löschen?",
+    "habits": "Gewohnheiten",
+    "habitsHint": "Diese erscheinen als Checkliste auf der Gewohnheiten-Karte des Tageseintrags.",
+    "habitName": "Gewohnheit",
+    "habitActive": "Aktiv",
+    "habitAdd": "Hinzufügen",
+    "habitDelete": "Löschen",
+    "habitDeleteConfirm": "\"{{name}}\" löschen?",
     "schedules": {
       "daily": "Täglich",
       "morning": "Morgens",

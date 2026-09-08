@@ -12,6 +12,7 @@ import {
   updateMedication,
   removeMedication,
 } from './medicationThunks';
+import { loadHabits, addHabit, updateHabit, removeHabit } from './habitThunks';
 import { todayIso } from './healthConstants';
 
 /**
@@ -45,6 +46,9 @@ const initialState = {
 
   // --- regular medications (managed in Settings) -----------------------
   medications: { items: [], status: 'idle', error: null },
+
+  // --- tracked habits (managed in Settings) ---------------------------
+  habits: { items: [], status: 'idle', error: null },
 };
 
 function indexByDate(entries) {
@@ -148,12 +152,35 @@ const healthSlice = createSlice({
         state.medications.items = state.medications.items.filter(
           (m) => m.id !== action.payload.id,
         );
+      })
+      .addCase(loadHabits.pending, (state) => {
+        state.habits.status = 'loading';
+        state.habits.error = null;
+      })
+      .addCase(loadHabits.fulfilled, (state, action) => {
+        state.habits.status = 'ready';
+        state.habits.items = action.payload.items;
+      })
+      .addCase(loadHabits.rejected, (state, action) => {
+        state.habits.status = 'error';
+        state.habits.error = action.payload ?? { message: 'Error' };
+      })
+      .addCase(addHabit.fulfilled, (state, action) => {
+        state.habits.items.push(action.payload.item);
+      })
+      .addCase(updateHabit.fulfilled, (state, action) => {
+        const i = state.habits.items.findIndex((h) => h.id === action.payload.item.id);
+        if (i !== -1) state.habits.items[i] = action.payload.item;
+      })
+      .addCase(removeHabit.fulfilled, (state, action) => {
+        state.habits.items = state.habits.items.filter((h) => h.id !== action.payload.id);
       });
   },
 });
 
 export { loadEntryForDate, loadEntryBefore, saveEntryForDate, loadEntriesInRange };
 export { loadMedications, addMedication, updateMedication, removeMedication };
+export { loadHabits, addHabit, updateHabit, removeHabit };
 export const { clearHealthError, clearSavedFlag, setCalendarView, setCalendarCursor } =
   healthSlice.actions;
 export default healthSlice.reducer;

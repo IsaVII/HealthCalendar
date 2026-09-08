@@ -9,6 +9,7 @@ import {
   loadEntryBefore,
   saveEntryForDate,
   loadMedications,
+  loadHabits,
 } from '@/features/health/healthSlice';
 import {
   selectHealthEntry,
@@ -104,6 +105,7 @@ export function HealthEntryPage() {
 
   useEffect(() => {
     dispatch(loadMedications());
+    dispatch(loadHabits());
   }, [dispatch]);
 
   useEffect(() => {

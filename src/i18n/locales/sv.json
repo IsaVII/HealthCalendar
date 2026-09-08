@@ -169,7 +169,6 @@
       "weather": "Väder",
       "pressure": "Lufttryck",
       "airQuality": "Luftkvalitet / pollen",
-      "screenHours": "Skärmtid",
       "eyeStrain": "Ansträngda ögon",
       "posture": "Hållning / ergonomi",
       "travel": "Resa / höjdförändring",
@@ -185,6 +184,8 @@
       "done": "Genomfört idag",
       "noMedications": "Inga regelbundna mediciner än.",
       "manageMedications": "Lägg till i Inställningar",
+      "noHabits": "Inga vanor tillagda än.",
+      "manageHabits": "Lägg till i Inställningar",
       "takenTime": "Tid det togs",
       "otherDrinks": "Andra drycker"
     },
@@ -284,17 +285,7 @@
         "tender_breasts": "Ömma bröst"
       },
       "airQuality": { "good": "Bra", "moderate": "Måttlig", "poor": "Dålig" },
-      "posture": { "good": "Bra", "mixed": "Blandad", "poor": "Dålig" },
-      "habits": {
-        "smoking": "Ingen rökning / nikotin",
-        "alcohol": "Ingen alkohol",
-        "caffeine_after_2pm": "Inget koffein efter kl. 14",
-        "screen_before_bed": "Ingen skärm före sängen",
-        "outdoor_time": "Tid utomhus",
-        "daylight": "Dagsljus",
-        "meditation": "Meditation / avslappning",
-        "exercise": "Träning"
-      }
+      "posture": { "good": "Bra", "mixed": "Blandad", "poor": "Dålig" }
     }
   },
   "settings": {
@@ -308,6 +299,13 @@
     "medAdd": "Lägg till",
     "medDelete": "Ta bort",
     "medDeleteConfirm": "Ta bort \"{{name}}\"?",
+    "habits": "Vanor",
+    "habitsHint": "Dessa visas som en checklista på dagspostens Vanor-kort.",
+    "habitName": "Vana",
+    "habitActive": "Aktiv",
+    "habitAdd": "Lägg till",
+    "habitDelete": "Ta bort",
+    "habitDeleteConfirm": "Ta bort \"{{name}}\"?",
     "schedules": {
       "daily": "Dagligen",
       "morning": "Morgon",

@@ -17,6 +17,15 @@ vi.mock('@/features/health/MedicationService', () => ({
   },
 }));
 
+vi.mock('@/features/health/HabitService', () => ({
+  habitService: {
+    listHabits: vi.fn().mockResolvedValue([]),
+    createHabit: vi.fn().mockResolvedValue({ id: 'h1', name: 'Walk', is_active: true }),
+    updateHabit: vi.fn().mockResolvedValue({ id: 'h1' }),
+    deleteHabit: vi.fn().mockResolvedValue('h1'),
+  },
+}));
+
 vi.mock('@/features/auth/ProfileService', () => ({
   profileService: {
     updateMyProfile: (...a) => updateMyProfile(...a),
@@ -54,7 +63,7 @@ describe('SettingsPage', () => {
   it('adds a medication through the form', async () => {
     renderWithProviders(<SettingsPage />, { preloadedState: profileState });
     await userEvent.type(screen.getAllByLabelText('Name')[0], 'Aspirin');
-    await userEvent.click(screen.getByRole('button', { name: 'Add' }));
+    await userEvent.click(screen.getAllByRole('button', { name: 'Add' })[0]);
     await waitFor(() =>
       expect(createMedication).toHaveBeenCalledWith(
         expect.objectContaining({ name: 'Aspirin' }),

@@ -9,11 +9,18 @@ import {
   addMedication,
   updateMedication,
   removeMedication,
+  loadHabits,
+  addHabit,
+  updateHabit,
+  removeHabit,
 } from '@/features/health/healthSlice';
 import {
   selectMedications,
   selectMedicationsStatus,
   selectMedicationsError,
+  selectHabits,
+  selectHabitsStatus,
+  selectHabitsError,
 } from '@/features/health/healthSelectors';
 import { CATEGORIES, isFieldHidden } from '@/features/health/healthSchema';
 import { selectUnitSystem } from '@/features/auth/authSelectors';
@@ -94,6 +101,46 @@ function MedicationRow({ med }) {
   );
 }
 
+function HabitRow({ habit }) {
+  const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const [name, setName] = useState(habit.name);
+
+  const commit = (patch) => dispatch(updateHabit({ id: habit.id, patch }));
+
+  return (
+    <li className="grid gap-2 rounded-lg border border-border bg-surface p-2 sm:grid-cols-[1fr_auto_auto] sm:items-end">
+      <FormField
+        dense
+        label={t('settings.habitName')}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        onBlur={() => name.trim() && name !== habit.name && commit({ name: name.trim() })}
+      />
+      <label className="flex min-h-9 items-center gap-1.5 text-sm text-content">
+        <input
+          type="checkbox"
+          className="h-4 w-4 rounded border-border text-brand-600 focus:ring-brand-500/30"
+          checked={habit.is_active}
+          onChange={(e) => commit({ is_active: e.target.checked })}
+        />
+        {t('settings.habitActive')}
+      </label>
+      <Button
+        variant="ghost"
+        className="w-auto px-2 text-red-600 hover:bg-red-50"
+        onClick={() => {
+          if (window.confirm(t('settings.habitDeleteConfirm', { name: habit.name }))) {
+            dispatch(removeHabit(habit.id));
+          }
+        }}
+      >
+        {t('settings.habitDelete')}
+      </Button>
+    </li>
+  );
+}
+
 export function SettingsPage() {
   const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
@@ -101,11 +148,15 @@ export function SettingsPage() {
   const meds = useAppSelector(selectMedications);
   const medsStatus = useAppSelector(selectMedicationsStatus);
   const medsError = useAppSelector(selectMedicationsError);
+  const habits = useAppSelector(selectHabits);
+  const habitsStatus = useAppSelector(selectHabitsStatus);
+  const habitsError = useAppSelector(selectHabitsError);
   const profile = useAppSelector(selectAuthProfile);
   const unitSystem = useAppSelector(selectUnitSystem);
   const heightUnit = unitConfig('length', unitSystem);
 
   const [draft, setDraft] = useState({ name: '', dose: '', schedule: '' });
+  const [habitDraft, setHabitDraft] = useState('');
   const [height, setHeight] = useState('');
   const [heightSaved, setHeightSaved] = useState(false);
   const [hidden, setHidden] = useState([]);
@@ -114,6 +165,7 @@ export function SettingsPage() {
 
   useEffect(() => {
     dispatch(loadMedications());
+    dispatch(loadHabits());
   }, [dispatch]);
 
   useEffect(() => {
@@ -141,6 +193,14 @@ export function SettingsPage() {
     if (!draft.name.trim()) return;
     const result = await dispatch(addMedication(draft));
     if (addMedication.fulfilled.match(result)) setDraft({ name: '', dose: '', schedule: '' });
+  }
+
+  async function handleAddHabit(e) {
+    e.preventDefault();
+    const name = habitDraft.trim();
+    if (!name) return;
+    const result = await dispatch(addHabit({ name }));
+    if (addHabit.fulfilled.match(result)) setHabitDraft('');
   }
 
   async function saveHeight(e) {
@@ -242,6 +302,40 @@ export function SettingsPage() {
           </SelectField>
           <Button type="submit" className="w-auto px-3">
             {t('settings.medAdd')}
+          </Button>
+        </form>
+      </div>
+
+      <div className="space-y-3 rounded-xl border border-border bg-surface p-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-content">{t('settings.habits')}</h2>
+          {habitsStatus === 'loading' && <Spinner className="h-4 w-4 text-brand-600" />}
+        </div>
+        <p className="text-sm text-content-muted">{t('settings.habitsHint')}</p>
+
+        {habitsError && <Alert tone="error">{habitsError.message}</Alert>}
+
+        {habits.length > 0 && (
+          <ul className="space-y-2">
+            {habits.map((habit) => (
+              <HabitRow key={habit.id} habit={habit} />
+            ))}
+          </ul>
+        )}
+
+        <form
+          onSubmit={handleAddHabit}
+          className="grid gap-2 border-t border-border pt-3 sm:grid-cols-[1fr_auto] sm:items-end"
+        >
+          <FormField
+            dense
+            label={t('settings.habitName')}
+            required
+            value={habitDraft}
+            onChange={(e) => setHabitDraft(e.target.value)}
+          />
+          <Button type="submit" className="w-full px-4 sm:w-auto">
+            {t('settings.habitAdd')}
           </Button>
         </form>
       </div>
