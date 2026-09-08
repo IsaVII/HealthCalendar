@@ -233,6 +233,7 @@ export function HealthEntryPage() {
               open={Boolean(openMap[category.id])}
               onToggle={(value) => setOpen(category.id, value)}
               onChangeField={changeField}
+              className={category.wide ? 'sm:col-span-2' : ''}
             />
           ))}
         </div>

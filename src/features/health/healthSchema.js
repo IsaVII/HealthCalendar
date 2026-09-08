@@ -139,6 +139,9 @@ export const CATEGORIES = [
   {
     id: 'symptoms',
     icon: '🤕',
+    // Symptoms & pain carries far more fields than any other card, so on the
+    // two-column entry grid it spans the full width.
+    wide: true,
     fields: [
       { key: 'painLevel', type: 'select', optionsKey: 'pain' },
       { key: 'headacheKind', type: 'multi', optionsKey: 'headacheKind' },

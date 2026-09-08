@@ -26,7 +26,7 @@ function itemClass(field) {
  * `onToggle` are owned by the page so "expand / collapse all" and the
  * localStorage persistence live in one place.
  */
-export function CategoryCard({ category, data, open, onToggle, onChangeField }) {
+export function CategoryCard({ category, data, open, onToggle, onChangeField, className = '' }) {
   const { t } = useTranslation();
   const { filled, count } = categoryStatus(data, category);
   const bucket = data?.[category.id] ?? {};
@@ -46,7 +46,7 @@ export function CategoryCard({ category, data, open, onToggle, onChangeField }) 
     <details
       open={open}
       onToggle={(e) => onToggle(e.currentTarget.open)}
-      className="group rounded-xl border border-border bg-surface"
+      className={`group rounded-xl border border-border bg-surface ${className}`}
     >
       <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2 text-sm font-semibold text-content [&::-webkit-details-marker]:hidden">
         <span
