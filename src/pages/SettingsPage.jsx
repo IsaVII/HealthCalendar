@@ -24,6 +24,7 @@ import {
   toStoredValue,
   toDisplayBound,
 } from '@/features/health/units';
+import { geocode } from '@/features/weather/weatherApi';
 import { FormField } from '@/components/ui/FormField';
 import { SelectField } from '@/components/ui/SelectField';
 import { Button } from '@/components/ui/Button';
@@ -94,7 +95,7 @@ function MedicationRow({ med }) {
 }
 
 export function SettingsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
 
   const meds = useAppSelector(selectMedications);
@@ -108,6 +109,8 @@ export function SettingsPage() {
   const [height, setHeight] = useState('');
   const [heightSaved, setHeightSaved] = useState(false);
   const [hidden, setHidden] = useState([]);
+  const [place, setPlace] = useState('');
+  const [placeStatus, setPlaceStatus] = useState('idle'); // idle | loading | error | saved
 
   useEffect(() => {
     dispatch(loadMedications());
@@ -150,6 +153,40 @@ export function SettingsPage() {
 
   function setUnitSystem(next) {
     if (next !== unitSystem) dispatch(updateMyProfile({ unit_system: next }));
+  }
+
+  useEffect(() => {
+    setPlace(profile?.weather_location ?? '');
+  }, [profile?.weather_location]);
+
+  async function findPlace(e) {
+    e.preventDefault();
+    const query = place.trim();
+    if (!query) {
+      await dispatch(
+        updateMyProfile({ weather_location: null, weather_lat: null, weather_lon: null }),
+      );
+      setPlaceStatus('idle');
+      return;
+    }
+    setPlaceStatus('loading');
+    try {
+      const { label, latitude, longitude } = await geocode(query, {
+        language: i18n.resolvedLanguage,
+      });
+      await dispatch(
+        updateMyProfile({
+          weather_location: label,
+          weather_lat: latitude,
+          weather_lon: longitude,
+        }),
+      );
+      setPlace(label);
+      setPlaceStatus('saved');
+      setTimeout(() => setPlaceStatus('idle'), 2500);
+    } catch {
+      setPlaceStatus('error');
+    }
   }
 
   return (
@@ -293,6 +330,34 @@ export function SettingsPage() {
             {t('common.save')}
           </Button>
         </div>
+      </form>
+
+      <form onSubmit={findPlace} className="space-y-3 rounded-xl border border-border bg-surface p-4">
+        <h2 className="text-lg font-semibold text-content">{t('settings.weather')}</h2>
+        <p className="text-sm text-content-muted">{t('settings.weatherHint')}</p>
+        {placeStatus === 'saved' && <Alert tone="success">{t('settings.saved')}</Alert>}
+        {placeStatus === 'error' && <Alert tone="error">{t('settings.weatherError')}</Alert>}
+        <div className="grid gap-2 sm:grid-cols-[1fr_auto] sm:items-end">
+          <FormField
+            dense
+            label={t('settings.weatherLocation')}
+            placeholder={t('settings.weatherPlaceholder')}
+            value={place}
+            onChange={(e) => setPlace(e.target.value)}
+          />
+          <Button
+            type="submit"
+            className="w-full px-4 sm:w-auto"
+            loading={placeStatus === 'loading'}
+          >
+            {t('settings.weatherFind')}
+          </Button>
+        </div>
+        {profile?.weather_lat != null && (
+          <p className="text-xs text-content-subtle">
+            {profile.weather_location} ({profile.weather_lat}, {profile.weather_lon})
+          </p>
+        )}
       </form>
     </section>
   );

@@ -46,7 +46,6 @@ export const OPTIONS = {
   ],
   flow: ['spotting', 'light', 'medium', 'heavy'],
   pms: ['cramps', 'mood_swings', 'cravings', 'headache', 'bloating', 'tender_breasts'],
-  pressure: ['drop', 'stable', 'rise'],
   airQuality: ['good', 'moderate', 'poor'],
   posture: ['good', 'mixed', 'poor'],
   habits: [
@@ -196,8 +195,8 @@ export const CATEGORIES = [
     id: 'environment',
     icon: '🌤️',
     fields: [
-      { key: 'weather', type: 'text' },
-      { key: 'pressure', type: 'select', optionsKey: 'pressure' },
+      { key: 'weather', type: 'weather' },
+      { key: 'pressure', type: 'number', min: 870, max: 1085, step: 1, unit: 'hPa' },
       { key: 'airQuality', type: 'select', optionsKey: 'airQuality' },
       { key: 'screenHours', type: 'number', min: 0, max: 24, step: 0.5, unit: 'h' },
       { key: 'eyeStrain', type: 'toggle' },

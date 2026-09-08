@@ -283,7 +283,6 @@
         "bloating": "Bloating",
         "tender_breasts": "Tender breasts"
       },
-      "pressure": { "drop": "Falling", "stable": "Stable", "rise": "Rising" },
       "airQuality": { "good": "Good", "moderate": "Moderate", "poor": "Poor" },
       "posture": { "good": "Good", "mixed": "Mixed", "poor": "Poor" },
       "habits": {
@@ -324,7 +323,33 @@
     "unitsHint": "Choose how measurements are entered and shown across the daily entry.",
     "unitSystem": "Measurement system",
     "unitSystems": { "metric": "Metric (kg, cm, °C)", "imperial": "Imperial (lb, in, °F)" },
+    "weather": "Weather location",
+    "weatherHint": "Used by the \"Get weather\" button on the daily entry's Environment section.",
+    "weatherLocation": "Town or city",
+    "weatherPlaceholder": "e.g. Malmö",
+    "weatherFind": "Find",
+    "weatherError": "Couldn't find that place. Try a nearby town.",
     "saved": "Saved."
+  },
+  "weather": {
+    "getButton": "Get weather",
+    "fetching": "Fetching…",
+    "setLocation": "Set location",
+    "error": "Weather unavailable right now.",
+    "wind": "wind",
+    "groups": {
+      "clear": "clear sky",
+      "mainlyClear": "mainly clear",
+      "partlyCloudy": "partly cloudy",
+      "overcast": "overcast",
+      "fog": "fog",
+      "drizzle": "drizzle",
+      "rain": "rain",
+      "snow": "snow",
+      "showers": "showers",
+      "thunderstorm": "thunderstorm",
+      "unknown": "—"
+    }
   },
   "calendar": {
     "title": "Calendar",

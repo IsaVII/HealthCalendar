@@ -39,6 +39,7 @@ export function CategoryCard({ category, data, open, onToggle, onChangeField, cl
       data={data}
       value={bucket[field.key]}
       onChange={(next) => onChangeField(category.id, field.key, next)}
+      onSetSibling={(key, next) => onChangeField(category.id, key, next)}
     />
   );
 

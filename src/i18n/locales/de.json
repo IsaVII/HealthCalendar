@@ -283,7 +283,6 @@
         "bloating": "Blähungen",
         "tender_breasts": "Empfindliche Brüste"
       },
-      "pressure": { "drop": "Fallend", "stable": "Stabil", "rise": "Steigend" },
       "airQuality": { "good": "Gut", "moderate": "Mäßig", "poor": "Schlecht" },
       "posture": { "good": "Gut", "mixed": "Gemischt", "poor": "Schlecht" },
       "habits": {
@@ -324,7 +323,33 @@
     "unitsHint": "Lege fest, wie Maße im Tageseintrag eingegeben und angezeigt werden.",
     "unitSystem": "Maßsystem",
     "unitSystems": { "metric": "Metrisch (kg, cm, °C)", "imperial": "Imperial (lb, in, °F)" },
+    "weather": "Ort für Wetter",
+    "weatherHint": "Wird vom Button \"Wetter abrufen\" im Bereich Umgebung des Tageseintrags genutzt.",
+    "weatherLocation": "Ort oder Stadt",
+    "weatherPlaceholder": "z. B. Malmö",
+    "weatherFind": "Suchen",
+    "weatherError": "Ort nicht gefunden. Versuche eine Stadt in der Nähe.",
     "saved": "Gespeichert."
+  },
+  "weather": {
+    "getButton": "Wetter abrufen",
+    "fetching": "Wird abgerufen…",
+    "setLocation": "Ort festlegen",
+    "error": "Wetter derzeit nicht verfügbar.",
+    "wind": "Wind",
+    "groups": {
+      "clear": "klarer Himmel",
+      "mainlyClear": "überwiegend klar",
+      "partlyCloudy": "teilweise bewölkt",
+      "overcast": "bedeckt",
+      "fog": "Nebel",
+      "drizzle": "Nieselregen",
+      "rain": "Regen",
+      "snow": "Schnee",
+      "showers": "Schauer",
+      "thunderstorm": "Gewitter",
+      "unknown": "—"
+    }
   },
   "calendar": {
     "title": "Kalender",

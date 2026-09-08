@@ -11,6 +11,20 @@ export const selectAuthPending = (state) => state.auth.pending;
 export const selectUnitSystem = (state) =>
   state.auth.profile?.unit_system === 'imperial' ? 'imperial' : 'metric';
 
+/**
+ * The saved place for the "Get weather" button, or null when none / not yet
+ * geocoded: `{ label, lat, lon }`.
+ */
+export const selectWeatherLocation = (state) => {
+  const p = state.auth.profile;
+  if (!p || p.weather_lat == null || p.weather_lon == null) return null;
+  return {
+    label: p.weather_location || '',
+    lat: Number(p.weather_lat),
+    lon: Number(p.weather_lon),
+  };
+};
+
 export const selectIsInitializing = (state) => state.auth.status === 'initializing';
 export const selectIsAuthenticated = (state) => state.auth.status === 'authenticated';
 export const selectIsUnverified = (state) => state.auth.status === 'unverified';

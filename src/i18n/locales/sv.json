@@ -283,7 +283,6 @@
         "bloating": "Uppblåsthet",
         "tender_breasts": "Ömma bröst"
       },
-      "pressure": { "drop": "Fallande", "stable": "Stabilt", "rise": "Stigande" },
       "airQuality": { "good": "Bra", "moderate": "Måttlig", "poor": "Dålig" },
       "posture": { "good": "Bra", "mixed": "Blandad", "poor": "Dålig" },
       "habits": {
@@ -324,7 +323,33 @@
     "unitsHint": "Välj hur mått anges och visas i hela dagsposten.",
     "unitSystem": "Måttsystem",
     "unitSystems": { "metric": "Metriskt (kg, cm, °C)", "imperial": "Imperialt (lb, tum, °F)" },
+    "weather": "Plats för väder",
+    "weatherHint": "Används av knappen \"Hämta väder\" under Miljö i dagsposten.",
+    "weatherLocation": "Ort eller stad",
+    "weatherPlaceholder": "t.ex. Malmö",
+    "weatherFind": "Sök",
+    "weatherError": "Hittade inte platsen. Prova en närliggande ort.",
     "saved": "Sparat."
+  },
+  "weather": {
+    "getButton": "Hämta väder",
+    "fetching": "Hämtar…",
+    "setLocation": "Ange plats",
+    "error": "Vädret är inte tillgängligt just nu.",
+    "wind": "vind",
+    "groups": {
+      "clear": "klart",
+      "mainlyClear": "mestadels klart",
+      "partlyCloudy": "halvklart",
+      "overcast": "mulet",
+      "fog": "dimma",
+      "drizzle": "duggregn",
+      "rain": "regn",
+      "snow": "snö",
+      "showers": "skurar",
+      "thunderstorm": "åska",
+      "unknown": "—"
+    }
   },
   "calendar": {
     "title": "Kalender",

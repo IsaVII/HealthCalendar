@@ -7,13 +7,14 @@ import { FormField } from '@/components/ui/FormField';
 import { SelectField } from '@/components/ui/SelectField';
 import { OPTIONS, PAIN_OPTION_VALUES, computeBmi } from '@/features/health/healthSchema';
 import { selectActiveMedications } from '@/features/health/healthSelectors';
-import { selectUnitSystem } from '@/features/auth/authSelectors';
+import { selectUnitSystem, selectWeatherLocation } from '@/features/auth/authSelectors';
 import {
   unitConfig,
   toDisplayValue,
   toStoredValue,
   toDisplayBound,
 } from '@/features/health/units';
+import { fetchCurrentWeather } from '@/features/weather/weatherApi';
 
 /**
  * A number field whose stored value is always metric but which is entered and
@@ -64,10 +65,79 @@ const textareaClass =
   'block w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-content shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30';
 
 /**
+ * The Environment "Weather" field: a free-text input plus a button that fills it
+ * with current conditions for the location set in Settings (Open-Meteo), and
+ * drops the sea-level pressure into the sibling "Barometric pressure" field.
+ * Falls back to a plain text field + a link to Settings when no place is saved.
+ */
+function WeatherField({ label, value, onChange, onSetSibling }) {
+  const { t } = useTranslation();
+  const location = useAppSelector(selectWeatherLocation);
+  const system = useAppSelector(selectUnitSystem);
+  const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'error'
+
+  async function getWeather() {
+    if (!location) return;
+    setStatus('loading');
+    try {
+      const w = await fetchCurrentWeather(location.lat, location.lon, { system });
+      const temp =
+        w.min != null && w.max != null
+          ? `${w.min}–${w.max}${w.tempUnit}`
+          : `${w.now}${w.tempUnit}`;
+      const bits = [t(`weather.groups.${w.dayGroup}`), temp];
+      if (w.rain > 0) bits.push(`${w.rain} ${w.precipUnit}`);
+      bits.push(`${t('weather.wind')} ${w.wind} ${w.windUnit}`);
+      onChange(bits.join(', '));
+      if (w.pressure != null) onSetSibling?.('pressure', String(w.pressure));
+      setStatus('idle');
+    } catch {
+      setStatus('error');
+    }
+  }
+
+  return (
+    <div className="sm:col-span-2">
+      <span className="mb-0.5 block text-xs font-medium text-content">{label}</span>
+      <div className="flex gap-1.5">
+        <input
+          className="min-h-9 min-w-0 flex-1 rounded-lg border border-border bg-surface px-3 text-sm text-content shadow-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30"
+          value={value ?? ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        {location ? (
+          <button
+            type="button"
+            onClick={getWeather}
+            disabled={status === 'loading'}
+            className="shrink-0 rounded-lg border border-border bg-surface px-2.5 text-sm font-medium text-brand-700 transition hover:bg-brand-50 disabled:opacity-60"
+          >
+            {status === 'loading' ? t('weather.fetching') : t('weather.getButton')}
+          </button>
+        ) : (
+          <Link
+            to="/settings"
+            className="flex shrink-0 items-center rounded-lg border border-dashed border-border px-2.5 text-xs font-medium text-content-muted hover:text-content"
+          >
+            {t('weather.setLocation')}
+          </Link>
+        )}
+      </div>
+      {status === 'error' && (
+        <p className="mt-0.5 text-xs text-red-600">{t('weather.error')}</p>
+      )}
+      {location?.label && status !== 'error' && (
+        <p className="mt-0.5 text-xs text-content-subtle">{location.label}</p>
+      )}
+    </div>
+  );
+}
+
+/**
  * One field of the daily entry. `value` / `onChange(next)` are owned by the
  * parent card; `data` is the whole document (needed for the derived BMI).
  */
-export function FieldRenderer({ field, value, onChange, data }) {
+export function FieldRenderer({ field, value, onChange, data, onSetSibling }) {
   const { t } = useTranslation();
   const activeMeds = useAppSelector(selectActiveMedications);
   const unitSystem = useAppSelector(selectUnitSystem);
@@ -102,7 +172,9 @@ export function FieldRenderer({ field, value, onChange, data }) {
           min={field.min}
           max={field.max}
           step={field.step}
-          value={value}
+          // Drop any legacy non-numeric value (e.g. an old select option) so the
+          // number input doesn't warn about an unparseable value.
+          value={value != null && value !== '' && !Number.isFinite(Number(value)) ? '' : value ?? ''}
           onChange={(e) => onChange(e.target.value)}
         />
       );
@@ -114,6 +186,16 @@ export function FieldRenderer({ field, value, onChange, data }) {
           label={label}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+        />
+      );
+
+    case 'weather':
+      return (
+        <WeatherField
+          label={label}
+          value={value}
+          onChange={onChange}
+          onSetSibling={onSetSibling}
         />
       );
 

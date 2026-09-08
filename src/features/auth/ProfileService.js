@@ -1,13 +1,13 @@
 import { supabase } from '@/lib/supabaseClient';
 import { AuthError } from './AuthError';
 
-// Columns we read/write on `profiles`. `unit_system` arrived in migration 0008;
-// on a database where that hasn't been applied yet, PostgREST answers with
-// error 42703 (undefined column) and we retry without it so the rest of the
-// profile still loads and saves.
+// Columns we read/write on `profiles`. The optional ones arrived in later
+// migrations (0008 unit_system, 0009 weather_*); on a database where those
+// haven't been applied yet PostgREST answers with error 42703 (undefined
+// column) and we retry without them so the rest of the profile still works.
 const CORE_COLUMNS =
   'id, username, display_name, locale, default_height_cm, hidden_health_fields';
-const OPTIONAL_COLUMNS = ['unit_system'];
+const OPTIONAL_COLUMNS = ['unit_system', 'weather_location', 'weather_lat', 'weather_lon'];
 
 const isUndefinedColumn = (error) =>
   error?.code === '42703' || /column .* does not exist/i.test(error?.message ?? '');

@@ -24,7 +24,7 @@ describe('CATEGORIES config integrity', () => {
 
   it('every field has a unique key within its category and a known type', () => {
     const types = new Set([
-      'number', 'text', 'textarea', 'time', 'select', 'toggle', 'multi', 'meds', 'bmi',
+      'number', 'text', 'textarea', 'time', 'select', 'toggle', 'multi', 'meds', 'bmi', 'weather',
     ]);
     for (const c of CATEGORIES) {
       const keys = c.fields.map((f) => f.key);
