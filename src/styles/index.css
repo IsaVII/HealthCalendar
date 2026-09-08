@@ -59,3 +59,22 @@
     padding-right: max(1rem, env(safe-area-inset-right));
   }
 }
+
+/*
+ * Print: strip the app shell so only the report sheet comes out. Elements that
+ * shouldn't print carry `.no-print`; the sheet itself is `.report-paper`.
+ */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+  .report-paper {
+    max-width: none !important;
+  }
+  @page {
+    margin: 14mm;
+  }
+}

@@ -22,7 +22,7 @@ export function AppLayout() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="border-b border-border bg-surface safe-px">
+      <header className="no-print border-b border-border bg-surface safe-px">
         <div className="mx-auto flex w-full max-w-3xl items-center justify-between py-3">
           <div className="flex items-center gap-6">
             <span className="font-bold text-brand-700">{t('common.appName')}</span>
@@ -41,6 +41,16 @@ export function AppLayout() {
             </nav>
           </div>
           <div className="flex items-center gap-3">
+            <NavLink
+              to="/report"
+              className={({ isActive }) =>
+                `text-lg leading-none ${isActive ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`
+              }
+              aria-label={t('nav.report')}
+              title={t('nav.report')}
+            >
+              📄
+            </NavLink>
             <NavLink
               to="/settings"
               className={({ isActive }) =>
@@ -65,11 +75,11 @@ export function AppLayout() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6 safe-px">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6 safe-px print:max-w-none print:p-0">
         <Outlet />
       </main>
 
-      <nav className="sticky bottom-0 border-t border-border bg-surface sm:hidden">
+      <nav className="no-print sticky bottom-0 border-t border-border bg-surface sm:hidden">
         <ul className="mx-auto flex max-w-3xl">
           {navItems.map((item) => (
             <li key={item.to} className="flex-1">
