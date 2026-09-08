@@ -67,7 +67,7 @@ export class HealthService {
     const userId = await this.requireUserId();
     const { data, error } = await this.client
       .from('health_entries')
-      .select('entry_date, pain_level, sleep_hours, sleep_quality')
+      .select('entry_date, pain_level, sleep_hours, sleep_quality, data')
       .eq('user_id', userId)
       .gte('entry_date', fromDate)
       .lte('entry_date', toDate)

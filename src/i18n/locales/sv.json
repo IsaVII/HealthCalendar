@@ -336,6 +336,21 @@
     "legendEntry": "Loggad, utan smärtvärde",
     "dayPain": "Smärta {{level}}",
     "dayLogged": "Post registrerad",
+    "dayWater": "{{litres}} L vätska",
+    "legendTitle": "Teckenförklaring",
+    "legendIcons": "Dagsymboler",
+    "legendPeriod": "Mens — större prick = rikligare flöde",
+    "legendPeriodTint": "Mensdag — mörkare ton = rikligare flöde",
+    "legendWater": "Vätska — fyllt glas = mer (1 L halvt, 2 L fullt)",
+    "legendMood": "Humör — rött (lågt) till grönt (högt)",
+    "legendExercise": "Tränade",
+    "legendSleep": "Kort eller dålig sömn",
+    "flow": {
+      "spotting": "Spotting",
+      "light": "Lätt flöde",
+      "medium": "Medelflöde",
+      "heavy": "Rikligt flöde"
+    },
     "loadError": "Kunde inte ladda poster för perioden."
   },
   "notFound": {

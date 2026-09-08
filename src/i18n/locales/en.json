@@ -336,6 +336,21 @@
     "legendEntry": "Logged, no pain value",
     "dayPain": "Pain {{level}}",
     "dayLogged": "Entry logged",
+    "dayWater": "{{litres}} L of fluids",
+    "legendTitle": "Legend",
+    "legendIcons": "Day markers",
+    "legendPeriod": "Period — bigger dot = heavier flow",
+    "legendPeriodTint": "Period day — deeper tint = heavier flow",
+    "legendWater": "Fluids — fuller glass = more (1 L half, 2 L full)",
+    "legendMood": "Mood — red (low) to green (high)",
+    "legendExercise": "Exercised",
+    "legendSleep": "Short or poor sleep",
+    "flow": {
+      "spotting": "Spotting",
+      "light": "Light flow",
+      "medium": "Medium flow",
+      "heavy": "Heavy flow"
+    },
     "loadError": "Couldn't load entries for this period."
   },
   "notFound": {

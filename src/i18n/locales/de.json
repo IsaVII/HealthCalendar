@@ -336,6 +336,21 @@
     "legendEntry": "Erfasst, ohne Schmerzwert",
     "dayPain": "Schmerz {{level}}",
     "dayLogged": "Eintrag erfasst",
+    "dayWater": "{{litres}} L Flüssigkeit",
+    "legendTitle": "Legende",
+    "legendIcons": "Tagessymbole",
+    "legendPeriod": "Periode — größerer Punkt = stärkere Blutung",
+    "legendPeriodTint": "Periodentag — kräftigere Färbung = stärkere Blutung",
+    "legendWater": "Flüssigkeit — volleres Glas = mehr (1 L halb, 2 L voll)",
+    "legendMood": "Stimmung — rot (niedrig) bis grün (hoch)",
+    "legendExercise": "Sport gemacht",
+    "legendSleep": "Kurzer oder schlechter Schlaf",
+    "flow": {
+      "spotting": "Schmierblutung",
+      "light": "Leichte Blutung",
+      "medium": "Mittlere Blutung",
+      "heavy": "Starke Blutung"
+    },
     "loadError": "Einträge für diesen Zeitraum konnten nicht geladen werden."
   },
   "notFound": {

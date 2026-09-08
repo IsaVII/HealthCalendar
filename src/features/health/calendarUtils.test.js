@@ -16,6 +16,8 @@ import {
   painBucket,
   painColor,
   PAIN_BUCKETS,
+  waterFill,
+  summariseEntry,
 } from './calendarUtils';
 
 describe('iso <-> Date', () => {
@@ -103,5 +105,66 @@ describe('pain colour buckets', () => {
     expect(painColor(10)).toBe(PAIN_BUCKETS[5].className);
     expect(painColor(null)).toBe('bg-slate-400');
     expect(painColor(undefined)).toBe('bg-slate-400');
+  });
+});
+
+describe('waterFill', () => {
+  it('is half at 1 L, full at 2 L, clamped', () => {
+    expect(waterFill(0)).toBe(0);
+    expect(waterFill(1)).toBe(0.5);
+    expect(waterFill(2)).toBe(1);
+    expect(waterFill(3)).toBe(1);
+    expect(waterFill(-1)).toBe(0);
+  });
+});
+
+describe('summariseEntry', () => {
+  const entry = (data, cols = {}) => ({ entry_date: '2026-01-02', ...cols, data });
+
+  it('returns null for a missing entry', () => {
+    expect(summariseEntry(null)).toBeNull();
+  });
+
+  it('reads period flow only when the period is active', () => {
+    expect(summariseEntry(entry({ cycle: { periodActive: true, flow: 'heavy' } })).flow).toBe(
+      'heavy',
+    );
+    expect(summariseEntry(entry({ cycle: { periodActive: false, flow: 'heavy' } })).flow).toBe(
+      null,
+    );
+    // active but no flow value -> a sensible default so the dot still shows
+    expect(summariseEntry(entry({ cycle: { periodActive: true } })).flow).toBe('light');
+  });
+
+  it('pulls litres, mood and exercise from the data blob', () => {
+    const s = summariseEntry(
+      entry({
+        meals: { waterGlasses: '1.5' },
+        mood: { mood: '4' },
+        activity: { exerciseMin: '30' },
+      }),
+    );
+    expect(s.waterL).toBe(1.5);
+    expect(s.mood).toBe(4);
+    expect(s.exercised).toBe(true);
+  });
+
+  it('flags short or poor sleep, ignoring unlogged nights', () => {
+    expect(summariseEntry(entry({}, { sleep_hours: 5 })).poorSleep).toBe(true);
+    expect(summariseEntry(entry({}, { sleep_quality: 'poor' })).poorSleep).toBe(true);
+    expect(summariseEntry(entry({}, { sleep_hours: 8 })).poorSleep).toBe(false);
+    expect(summariseEntry(entry({})).poorSleep).toBe(false);
+  });
+
+  it('drops indicators for hidden categories and fields', () => {
+    const data = {
+      cycle: { periodActive: true, flow: 'medium' },
+      meals: { waterGlasses: '2' },
+      mood: { mood: '5' },
+    };
+    const s = summariseEntry(entry(data), ['cycle', 'meals.waterGlasses']);
+    expect(s.flow).toBeNull();
+    expect(s.waterL).toBeNull();
+    expect(s.mood).toBe(5);
   });
 });

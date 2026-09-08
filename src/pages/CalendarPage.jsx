@@ -23,10 +23,10 @@ import {
   monthLabel,
   parseIso,
   rangeForView,
-  PAIN_BUCKETS,
 } from '@/features/health/calendarUtils';
 import { MonthGrid } from '@/features/health/components/MonthGrid';
 import { YearGrid } from '@/features/health/components/YearGrid';
+import { CalendarLegend } from '@/features/health/components/CalendarLegend';
 import { Alert } from '@/components/ui/Alert';
 import { Spinner } from '@/components/ui/Spinner';
 
@@ -129,17 +129,7 @@ export function CalendarPage() {
         />
       )}
 
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 text-xs text-content-muted">
-        <span className="font-medium">{t('calendar.legendPain')}:</span>
-        {PAIN_BUCKETS.map((bucket) => (
-          <span key={bucket.label} className="flex items-center gap-1">
-            <span className={`h-3 w-3 rounded-sm ${bucket.className}`} /> {bucket.label}
-          </span>
-        ))}
-        <span className="flex items-center gap-1">
-          <span className="h-3 w-3 rounded-sm bg-slate-400" /> {t('calendar.legendEntry')}
-        </span>
-      </div>
+      <CalendarLegend view={view} />
     </section>
   );
 }
