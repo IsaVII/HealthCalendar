@@ -1,6 +1,17 @@
 import { supabase } from '@/lib/supabaseClient';
 import { AuthError } from './AuthError';
 
+// Columns we read/write on `profiles`. `unit_system` arrived in migration 0008;
+// on a database where that hasn't been applied yet, PostgREST answers with
+// error 42703 (undefined column) and we retry without it so the rest of the
+// profile still loads and saves.
+const CORE_COLUMNS =
+  'id, username, display_name, locale, default_height_cm, hidden_health_fields';
+const OPTIONAL_COLUMNS = ['unit_system'];
+
+const isUndefinedColumn = (error) =>
+  error?.code === '42703' || /column .* does not exist/i.test(error?.message ?? '');
+
 /**
  * Reads and writes `public.profiles`. RLS restricts row access to the owner;
  * the username-availability check uses a SECURITY DEFINER RPC so it works
@@ -22,13 +33,15 @@ export class ProfileService {
     const userId = await this.currentUserId();
     if (!userId) return null;
 
-    const { data, error } = await this.client
-      .from('profiles')
-      .select(
-        'id, username, display_name, locale, default_height_cm, hidden_health_fields, unit_system, created_at',
-      )
-      .eq('id', userId)
-      .maybeSingle();
+    const run = (columns) =>
+      this.client.from('profiles').select(columns).eq('id', userId).maybeSingle();
+
+    let { data, error } = await run(
+      `${CORE_COLUMNS}, ${OPTIONAL_COLUMNS.join(', ')}, created_at`,
+    );
+    if (error && isUndefinedColumn(error)) {
+      ({ data, error } = await run(`${CORE_COLUMNS}, created_at`));
+    }
     if (error) throw AuthError.from(error);
     return data ?? null;
   }
@@ -37,14 +50,16 @@ export class ProfileService {
     const userId = await this.currentUserId();
     if (!userId) throw new AuthError('generic', 'Not authenticated');
 
-    const { data, error } = await this.client
-      .from('profiles')
-      .update({ ...patch, updated_at: new Date().toISOString() })
-      .eq('id', userId)
-      .select(
-        'id, username, display_name, locale, default_height_cm, hidden_health_fields, unit_system',
-      )
-      .single();
+    const body = { ...patch, updated_at: new Date().toISOString() };
+    const run = (columns) =>
+      this.client.from('profiles').update(body).eq('id', userId).select(columns).single();
+
+    let { data, error } = await run(`${CORE_COLUMNS}, ${OPTIONAL_COLUMNS.join(', ')}`);
+    if (error && isUndefinedColumn(error)) {
+      // Drop columns the DB doesn't know yet from both the write and the read-back.
+      for (const col of OPTIONAL_COLUMNS) delete body[col];
+      ({ data, error } = await run(CORE_COLUMNS));
+    }
     if (error) throw AuthError.from(error);
     return data;
   }
