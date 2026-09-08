@@ -174,8 +174,6 @@ export function HealthEntryPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3" noValidate>
-        {error && <Alert tone="error">{error.message || t('health.saveError')}</Alert>}
-        {savedAt && !error && <Alert tone="success">{t('health.saved')}</Alert>}
         {hasEntry && !savedAt && <Alert tone="info">{t('health.existingNote')}</Alert>}
 
         <div className="flex flex-wrap items-end gap-3">
@@ -223,6 +221,16 @@ export function HealthEntryPage() {
           <Button type="submit" loading={saving} disabled={loading}>
             {t('health.save')}
           </Button>
+          {error && (
+            <Alert tone="error" className="mt-2">
+              {error.message || t('health.saveError')}
+            </Alert>
+          )}
+          {savedAt && !error && (
+            <Alert tone="success" className="mt-2">
+              {t('health.saved')}
+            </Alert>
+          )}
         </div>
       </form>
     </section>

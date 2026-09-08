@@ -6,10 +6,13 @@ const TONES = {
   info: 'bg-sky-50 text-sky-800 ring-sky-200 dark:bg-sky-950/50 dark:text-sky-200 dark:ring-sky-900',
 };
 
-export function Alert({ tone = 'info', children }) {
+export function Alert({ tone = 'info', className = '', children }) {
   if (!children) return null;
   return (
-    <div role="status" className={`rounded-lg px-3 py-2 text-sm ring-1 ring-inset ${TONES[tone]}`}>
+    <div
+      role="status"
+      className={`rounded-lg px-3 py-2 text-sm ring-1 ring-inset ${TONES[tone]} ${className}`}
+    >
       {children}
     </div>
   );
