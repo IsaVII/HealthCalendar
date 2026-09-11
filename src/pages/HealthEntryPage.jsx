@@ -232,6 +232,7 @@ export function HealthEntryPage() {
               key={category.id}
               category={category}
               data={form.data}
+              date={date}
               open={Boolean(openMap[category.id])}
               onToggle={(value) => setOpen(category.id, value)}
               onChangeField={changeField}

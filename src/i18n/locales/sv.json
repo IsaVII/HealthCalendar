@@ -220,7 +220,9 @@
         "temporal": "Tinning",
         "occipital": "Bakhuvud",
         "one_sided": "Ensidig",
-        "behind_eye": "Bakom ögat"
+        "behind_eye": "Bakom ögat",
+        "left": "Vänster",
+        "right": "Höger"
       },
       "headacheType": {
         "throbbing": "Bultande",

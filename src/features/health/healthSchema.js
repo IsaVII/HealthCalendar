@@ -30,7 +30,7 @@ export const OPTIONS = {
   scale5: ['1', '2', '3', '4', '5'],
   reliefWorked: ['yes', 'partly', 'no'],
   headacheKind: ['migraine', 'tension', 'cluster', 'sinus', 'cervicogenic', 'other'],
-  headacheLocation: ['frontal', 'temporal', 'occipital', 'one_sided', 'behind_eye'],
+  headacheLocation: ['frontal', 'temporal', 'occipital', 'one_sided', 'behind_eye', 'left', 'right'],
   headacheType: ['throbbing', 'pressure', 'stabbing', 'dull'],
   headacheAssociated: ['nausea', 'aura', 'light_sensitivity', 'sound_sensitivity', 'tearing'],
   otherSymptoms: [

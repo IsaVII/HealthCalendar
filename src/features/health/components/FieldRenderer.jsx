@@ -15,6 +15,7 @@ import {
   toDisplayBound,
 } from '@/features/health/units';
 import { fetchCurrentWeather } from '@/features/weather/weatherApi';
+import { todayIso } from '@/features/health/healthConstants';
 
 /**
  * A number field whose stored value is always metric but which is entered and
@@ -69,12 +70,18 @@ const textareaClass =
  * with current conditions for the location set in Settings (Open-Meteo), and
  * drops the sea-level pressure into the sibling "Barometric pressure" field.
  * Falls back to a plain text field + a link to Settings when no place is saved.
+ *
+ * For today's entry, fetches automatically once as soon as a location is
+ * available and the field is still empty — no need to click the button
+ * every day. Past days are never auto-fetched (Open-Meteo only gives current
+ * conditions), and a day that already has a value is left alone.
  */
-function WeatherField({ label, value, onChange, onSetSibling }) {
+function WeatherField({ label, value, onChange, onSetSibling, date }) {
   const { t } = useTranslation();
   const location = useAppSelector(selectWeatherLocation);
   const system = useAppSelector(selectUnitSystem);
   const [status, setStatus] = useState('idle'); // 'idle' | 'loading' | 'error'
+  const autoTriedFor = useRef(null);
 
   async function getWeather() {
     if (!location) return;
@@ -95,6 +102,16 @@ function WeatherField({ label, value, onChange, onSetSibling }) {
       setStatus('error');
     }
   }
+
+  useEffect(() => {
+    if (!location || value || date !== todayIso()) return;
+    // Only attempt once per date so a failed lookup (or the user clearing
+    // the field again) doesn't retry on every render.
+    if (autoTriedFor.current === date) return;
+    autoTriedFor.current = date;
+    getWeather();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location, value, date]);
 
   return (
     <div className="sm:col-span-2 lg:col-span-3">
@@ -136,7 +153,7 @@ function WeatherField({ label, value, onChange, onSetSibling }) {
  * One field of the daily entry. `value` / `onChange(next)` are owned by the
  * parent card; `data` is the whole document (needed for the derived BMI).
  */
-export function FieldRenderer({ field, value, onChange, data, onSetSibling }) {
+export function FieldRenderer({ field, value, onChange, data, date, onSetSibling }) {
   const { t } = useTranslation();
   const activeMeds = useAppSelector(selectActiveMedications);
   const activeHabits = useAppSelector(selectActiveHabits);
@@ -196,6 +213,7 @@ export function FieldRenderer({ field, value, onChange, data, onSetSibling }) {
           value={value}
           onChange={onChange}
           onSetSibling={onSetSibling}
+          date={date}
         />
       );
 
